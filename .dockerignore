@@ -1,0 +1,8 @@
+bin/
+pkg/
+.dockerignore
+docker-compose.yml
+Dockerfile
+.gitignore
+.git/
+.idea/
