@@ -1,0 +1,25 @@
+version: "3.7"
+services:
+  db:
+    image: postgres:11
+    restart: unless-stopped
+    env_file:
+      - db_service_setting.env
+    user: postgres
+    volumes:
+      - "./dump.sql:/dump.sql"
+#    entrypoint: [ "bin/bash", "-c", "pg_restore", "-C", "-d",
+#                  "sensors", "-U", "root", "<", "/dump.sql" ]
+  #    healthcheck:
+  #      test: [ "CMD", "pg_isready", "-U", "$POSTGRES_USER" ]
+  #      timeout: 45s
+  #      interval: 10s
+  #      retries: 10
+
+  boxex_listener:
+    image: senyehor/server:latest
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    restart: unless-stopped

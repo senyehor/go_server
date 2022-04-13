@@ -3,26 +3,27 @@ package db
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/senyehor/go_server/parser"
 	"github.com/senyehor/go_server/utils"
 	log "github.com/sirupsen/logrus"
 	"os"
 )
 
-func Connect() *pgx.Conn {
-	connection, err := pgx.Connect(context.Background(), getConnString())
+func Connect() *pgxpool.Pool {
+	config, err := pgxpool.ParseConfig(getConnString())
 	if err != nil {
 		log.Error(err)
-		log.Error("Could not connect no db")
+		log.Error("Could not parse config")
 		os.Exit(1)
 	}
-	err = connection.Ping(context.Background())
+	pool, err := pgxpool.ConnectConfig(context.Background(), config)
 	if err != nil {
-		log.Error("Failed to ping db")
+		log.Error(err)
+		log.Error("Could connect :(")
 		os.Exit(1)
 	}
-	return connection
+	return pool
 }
 
 func getConnString() string {

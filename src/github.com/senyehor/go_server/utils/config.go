@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-type DBConfig struct {
+type dbConfig struct {
 	DBUsername string `mapstructure:"DB_USER"`
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	DBHost     string `mapstructure:"DB_HOST"`
@@ -16,7 +16,7 @@ type DBConfig struct {
 
 // todo check types packetConf
 
-type PacketConfig struct {
+type packetConfig struct {
 	packetMaxLength      int    `mapstructure:"PACKET_MAX_LENGTH"`
 	packetDataDelimiter  string `mapstructure:"PACKET_DATA_DELIMITER"`
 	packetDataTerminator rune   `mapstructure:"PACKET_DATA_TERMINATOR"`
@@ -24,20 +24,21 @@ type PacketConfig struct {
 	packetToken          string `mapstructure:"PACKET_TOKEN"`
 }
 
-type ServerConfig struct {
-	port string `mapstructure:"PORT"`
+type appConfig struct {
+	port  string `mapstructure:"PORT"`
+	debug bool   `mapstructure:"DEBUG"`
 }
 
-func GetServerConfig() *ServerConfig {
+func GetAppConfig() *appConfig {
 	setUpEnv()
-	return &ServerConfig{
-		port: viper.GetString("SERVER.PORT"),
+	return &appConfig{
+		port: viper.GetString("APP.PORT"),
 	}
 }
 
-func GetPacketConfig() *PacketConfig {
+func GetPacketConfig() *packetConfig {
 	setUpEnv()
-	return &PacketConfig{
+	return &packetConfig{
 		packetMaxLength:      viper.GetInt("PACKET.MAX_LENGTH"),
 		packetDataDelimiter:  viper.GetString("PACKET.DELIMITER"),
 		packetDataTerminator: rune(viper.GetUint32("PACKET.TERMINATOR")),
@@ -46,9 +47,9 @@ func GetPacketConfig() *PacketConfig {
 	}
 }
 
-func GetDBConfig() *DBConfig {
+func GetDBConfig() *dbConfig {
 	setUpEnv()
-	return &DBConfig{
+	return &dbConfig{
 		DBUsername: viper.GetString("DB.USERNAME"),
 		DBPassword: viper.GetString("DB.PASSWORD"),
 		DBHost:     viper.GetString("DB.HOST"),
@@ -58,51 +59,56 @@ func GetDBConfig() *DBConfig {
 }
 
 func setUpEnv() {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yml")
 	path, _ := os.Getwd()
-	log.Info("current path is " + path)
+	viper.SetConfigName("dev_config")
 	viper.AddConfigPath(path)
+	viper.SetConfigType("yml")
 	err := viper.ReadInConfig()
+	if err == nil {
+		return
+	}
+	viper.SetConfigName("prod_config")
+	viper.AddConfigPath("/bin/")
+	err = viper.ReadInConfig()
 	if err != nil {
-		log.Error("config file was not found")
+		log.Error("Failed to find both prod and dev configs")
 		panic(err)
 	}
 }
 
-func (packetConfig *PacketConfig) MaxLength() int {
+func (packetConfig *packetConfig) MaxLength() int {
 	return packetConfig.packetMaxLength
 }
 
-func (packetConfig *PacketConfig) DataDelimiter() string {
+func (packetConfig *packetConfig) DataDelimiter() string {
 	return packetConfig.packetDataDelimiter
 }
-func (packetConfig *PacketConfig) DataTerminator() rune {
+func (packetConfig *packetConfig) DataTerminator() rune {
 	return packetConfig.packetDataTerminator
 }
-func (packetConfig *PacketConfig) Response() string {
+func (packetConfig *packetConfig) Response() string {
 	return packetConfig.packetResponse
 }
-func (packetConfig *PacketConfig) Token() string {
+func (packetConfig *packetConfig) Token() string {
 	return packetConfig.packetToken
 }
 
-func (server *ServerConfig) Port() string {
+func (server *appConfig) Port() string {
 	return server.port
 }
 
-func (DBConfig *DBConfig) Username() string {
+func (DBConfig *dbConfig) Username() string {
 	return DBConfig.DBUsername
 }
-func (DBConfig *DBConfig) Password() string {
+func (DBConfig *dbConfig) Password() string {
 	return DBConfig.DBPassword
 }
-func (DBConfig *DBConfig) Host() string {
+func (DBConfig *dbConfig) Host() string {
 	return DBConfig.DBHost
 }
-func (DBConfig *DBConfig) Port() string {
+func (DBConfig *dbConfig) Port() string {
 	return DBConfig.DBPort
 }
-func (DBConfig *DBConfig) Name() string {
+func (DBConfig *dbConfig) Name() string {
 	return DBConfig.DBName
 }
