@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/senyehor/go_server/parser"
+	"github.com/senyehor/go_server/packet_parser"
 	"github.com/senyehor/go_server/utils"
 	log "github.com/sirupsen/logrus"
 	"os"
 )
 
-func Connect() *pgxpool.Pool {
+func GetConnection() *pgxpool.Pool {
 	config, err := pgxpool.ParseConfig(getConnString())
 	if err != nil {
 		log.Error(err)
@@ -36,21 +36,29 @@ func getConnString() string {
 		"/" + dbConfig.Name()
 }
 
-func ComposeQueryString(packet *parser.Packet) string {
+func ComposeQueryStringToInsertPacket(packet *packet_parser.Packet) string {
 	insertPart := "insert into sensor_values" +
-		" ( sensor_value, value_accumulation_period, package_number, boxes_set_id) values "
+		" (sensor_value, value_accumulation_period, package_number, boxes_set_id) values "
 	valuesPart := ""
-	for i := 0; i < parser.PacketValuesCount; i++ {
+	// todo debug
+	for index, value := range packet.Values() {
 		valuesPart += fmt.Sprintf("(%.1f, %v, %v, (select boxes_set_id from"+
 			" boxes_sets bs join boxes b "+
 			"on bs.box_id=b.box_id "+
 			"and box_number='%v' and bs.sensor_number=%v))",
-			packet.Values()[i], packet.Time(), packet.PacketNum(), packet.DeviceID(), i+1)
-		if i == parser.PacketValuesCount-1 {
+			value, packet.Time(), packet.PacketNum(), packet.DeviceID(), index+1)
+		if index == packet_parser.PacketValuesCount-1 { // last value in packet
 			valuesPart += ";"
 		} else {
 			valuesPart += ", "
 		}
 	}
+	//for i := 0; i < packet_parser.PacketValuesCount; i++ {
+	//	valuesPart += fmt.Sprintf("(%.1f, %v, %v, (select boxes_set_id from"+
+	//		" boxes_sets bs join boxes b "+
+	//		"on bs.box_id=b.box_id "+
+	//		"and box_number='%v' and bs.sensor_number=%v))",
+	//		packet.Values()[i], packet.Time(), packet.PacketNum(), packet.DeviceID(), i+1)
+	//}
 	return insertPart + valuesPart
 }
