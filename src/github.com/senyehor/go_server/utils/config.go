@@ -1,11 +1,14 @@
 package utils
 
 import (
-	"errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
 )
+
+func init() {
+	setUpEnv()
+}
 
 func GetAppConfig() *appConfig {
 	return &appConfig{
@@ -15,16 +18,8 @@ func GetAppConfig() *appConfig {
 }
 
 func GetPacketConfig() *packetConfig {
-	packetDataDelimiterFromConfig := viper.GetString("PACKET.DELIMITER")
-	if len(packetDataDelimiterFromConfig) != 1 {
-		panic(errors.New("packet delimiter must be 1 symbol long"))
-	}
-	packetDataDelimiter := rune(packetDataDelimiterFromConfig[0])
-	packetDataTerminatorFromConfig := viper.GetString("PACKET.TERMINATOR")
-	if len(packetDataTerminatorFromConfig) != 1 {
-		panic(errors.New("packet terminator must be 1 symbol long"))
-	}
-	packetDataTerminator := rune(packetDataTerminatorFromConfig[0])
+	packetDataDelimiter := getRuneFromEnv("PACKET.DELIMITER")
+	packetDataTerminator := getRuneFromEnv("PACKET.TERMINATOR")
 	return &packetConfig{
 		packetMaxLength:      viper.GetInt("PACKET.MAX_LENGTH"),
 		packetDataDelimiter:  packetDataDelimiter,
@@ -44,8 +39,9 @@ func GetDBConfig() *dbConfig {
 	}
 }
 
-func SetUpEnv() {
+func setUpEnv() {
 	path, _ := os.Getwd()
+	// checks what environment app is running in
 	viper.SetConfigName("dev_config")
 	viper.AddConfigPath(path)
 	viper.SetConfigType("yml")

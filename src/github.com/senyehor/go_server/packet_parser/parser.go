@@ -10,13 +10,9 @@ var (
 
 func ParseFromBinary(binaryData []byte) (*Packet, error) {
 	// returns nil if parsing goes wrong otherwise packet obj
-	packetParts := parseBinaryDataToStringParts(binaryData)
-
-	if !checkPacketLength(packetParts) {
-		return nil, errors.New("invalid packet lenght")
-	}
-	if !checkPacketToken(packetParts) {
-		return nil, errors.New("invalid packet token")
+	packetParts, err := parseBinaryDataToStringParts(binaryData)
+	if err != nil {
+		return nil, err
 	}
 
 	values, err := parsePacketValues(packetParts)
@@ -35,6 +31,7 @@ func ParseFromBinary(binaryData []byte) (*Packet, error) {
 	if err != nil {
 		return nil, errors.New("failed to parse device id")
 	}
+
 	return &Packet{
 		values:    values,
 		time:      time,

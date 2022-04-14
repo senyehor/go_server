@@ -8,8 +8,10 @@ import (
 )
 
 func main() {
-	utils.SetUpEnv()
 	appConfig := utils.GetAppConfig()
+	if appConfig.Debug() {
+		log.SetLevel(log.DebugLevel)
+	}
 	server, err := tcpserver.NewServer(appConfig.ListenAddress())
 	if err != nil {
 		log.Error("Server failed to start")

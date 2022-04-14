@@ -38,9 +38,8 @@ func getConnString() string {
 
 func ComposeQueryStringToInsertPacket(packet *packet_parser.Packet) string {
 	insertPart := "insert into sensor_values" +
-		" (sensor_value, value_accumulation_period, package_number, boxes_set_id) values "
-	valuesPart := ""
-	// todo debug
+		" (sensor_value, value_accumulation_period, package_number, boxes_set_id)"
+	valuesPart := " values "
 	for index, value := range packet.Values() {
 		valuesPart += fmt.Sprintf("(%.1f, %v, %v, (select boxes_set_id from"+
 			" boxes_sets bs join boxes b "+
@@ -53,12 +52,5 @@ func ComposeQueryStringToInsertPacket(packet *packet_parser.Packet) string {
 			valuesPart += ", "
 		}
 	}
-	//for i := 0; i < packet_parser.PacketValuesCount; i++ {
-	//	valuesPart += fmt.Sprintf("(%.1f, %v, %v, (select boxes_set_id from"+
-	//		" boxes_sets bs join boxes b "+
-	//		"on bs.box_id=b.box_id "+
-	//		"and box_number='%v' and bs.sensor_number=%v))",
-	//		packet.Values()[i], packet.Time(), packet.PacketNum(), packet.DeviceID(), i+1)
-	//}
 	return insertPart + valuesPart
 }
