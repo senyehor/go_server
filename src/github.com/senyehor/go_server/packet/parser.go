@@ -1,4 +1,4 @@
-package packet_parser
+package packet
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ var (
 )
 
 func ParseFromBinary(binaryData []byte) (*Packet, error) {
-	// returns nil if parsing goes wrong otherwise packet obj
+	// function returns nil if parsing goes wrong otherwise Packet obj
 	packetParts, err := parseBinaryDataToStringParts(binaryData)
 	if err != nil {
 		return nil, err
@@ -25,17 +25,12 @@ func ParseFromBinary(binaryData []byte) (*Packet, error) {
 	}
 	number, err := parsePacketNumber(packetParts)
 	if err != nil {
-		return nil, errors.New("failed to parse packet number")
+		return nil, errors.New("failed to parse Packet number")
 	}
 	deviceID, err := parsePacketDeviceID(packetParts)
 	if err != nil {
 		return nil, errors.New("failed to parse device id")
 	}
 
-	return &Packet{
-		values:    values,
-		time:      time,
-		packetNum: number,
-		deviceID:  deviceID,
-	}, nil
+	return NewPacket(values, time, number, deviceID), nil
 }

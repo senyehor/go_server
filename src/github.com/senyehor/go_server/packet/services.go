@@ -1,4 +1,4 @@
-package packet_parser
+package packet
 
 import (
 	"errors"
@@ -7,33 +7,31 @@ import (
 	"strings"
 )
 
-// todo think of renaming file
-
 var (
 	packetConfig = utils.GetPacketConfig()
 )
 
 func getPacketPartsIndexesInParsedData() *packetPartsIndexesInParsedData {
 	// [Token];[n1];[n2];...;[packetConfig.ValuesCount()];[Time];[PacketNumber];[IDdevice]!
-	//- packet structure
+	//- Packet structure
 	return &packetPartsIndexesInParsedData{
 		token:              0,
-		valuesRangeBorders: rangeBorders{1, PacketValuesCount + 1}, // left border included, second excluded
-		// indexes below are dependent on PacketValuesCount
+		valuesRangeBorders: newRangeBorders(1, packetConfig.ValuesCount()+1), // left border included, second excluded
+		// indexes below are dependent on ValuesCount
 		//and each shifts to one more from right border of values right border
-		time:         1 + PacketValuesCount,
-		packetNumber: 2 + PacketValuesCount,
-		deviceID:     3 + PacketValuesCount,
+		time:         1 + packetConfig.ValuesCount(),
+		packetNumber: 2 + packetConfig.ValuesCount(),
+		deviceID:     3 + packetConfig.ValuesCount(),
 	}
 }
 
 func parseBinaryDataToStringParts(binaryData []byte) ([]string, error) {
 	parts := strings.Split(string(binaryData[:]), string(packetConfig.DataDelimiter()))
 	if !checkPacketLength(parts) {
-		return parts, errors.New("invalid packet length")
+		return parts, errors.New("invalid Packet length")
 	}
 	if !checkPacketToken(parts) {
-		return parts, errors.New("invalid packet token")
+		return parts, errors.New("invalid Packet token")
 	}
 	// deleting data terminator
 	parts[parsedDataPacketIndexes.deviceID] =
@@ -45,7 +43,7 @@ func parseBinaryDataToStringParts(binaryData []byte) ([]string, error) {
 }
 
 func checkPacketLength(packetParts []string) bool {
-	return len(packetParts) == NonValuesPacketPartsCount+PacketValuesCount
+	return uint8(len(packetParts)) == packetConfig.NonValuesPartsCount()+packetConfig.ValuesCount()
 }
 
 func checkPacketToken(packetParts []string) bool {
@@ -54,13 +52,12 @@ func checkPacketToken(packetParts []string) bool {
 
 func parsePacketValues(packetParts []string) (packetValues, error) {
 	var values packetValues
-	for partsIndexCounter, valuesIndexCounter := parsedDataPacketIndexes.valuesRangeBorders.left, 0; partsIndexCounter < parsedDataPacketIndexes.valuesRangeBorders.right; partsIndexCounter, valuesIndexCounter = partsIndexCounter+1, valuesIndexCounter+1 {
+	for partsIndexCounter := parsedDataPacketIndexes.valuesRangeBorders.left; partsIndexCounter < parsedDataPacketIndexes.valuesRangeBorders.right; partsIndexCounter++ {
 		parsedValue, err := strconv.ParseFloat(packetParts[partsIndexCounter], 32)
 		if err != nil {
 			return values, err
 		}
-		// todo possible data check
-		values[valuesIndexCounter] = parsedValue
+		values = append(values, parsedValue)
 	}
 	return values, nil
 
@@ -96,7 +93,7 @@ func parsePacketNumber(packetParts []string) (uint, error) {
 func parsePacketDeviceID(packetParts []string) (uint, error) {
 	packetNumber, err := parseIntConvertToUint(packetParts[parsedDataPacketIndexes.deviceID])
 	if err != nil {
-		return 0, errors.New("failed to parse packet number")
+		return 0, errors.New("failed to parse Packet number")
 	}
 	return packetNumber, nil
 }

@@ -1,13 +1,8 @@
-package packet_parser
+package packet
 
-const ( // must be sync to type Packet
-	PacketValuesCount         = 16
-	NonValuesPacketPartsCount = 4
-)
+type packetValues = []float64
 
-type packetValues = [PacketValuesCount]float64
-
-type Packet struct { // must be kept to constants above
+type Packet struct {
 	values    packetValues
 	time      uint
 	packetNum uint
@@ -19,12 +14,20 @@ type rangeBorders struct {
 	right uint8
 }
 
+func newRangeBorders(left uint8, right uint8) *rangeBorders {
+	return &rangeBorders{left: left, right: right}
+}
+
 type packetPartsIndexesInParsedData struct {
 	token              uint8
-	valuesRangeBorders rangeBorders
+	valuesRangeBorders *rangeBorders
 	time               uint8
 	packetNumber       uint8
 	deviceID           uint8
+}
+
+func NewPacket(values packetValues, time uint, packetNum uint, deviceID uint) *Packet {
+	return &Packet{values: values, time: time, packetNum: packetNum, deviceID: deviceID}
 }
 
 func (p Packet) Values() *packetValues {

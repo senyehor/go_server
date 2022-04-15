@@ -18,14 +18,13 @@ func GetAppConfig() *appConfig {
 }
 
 func GetPacketConfig() *packetConfig {
-	packetDataDelimiter := getRuneFromEnv("PACKET.DELIMITER")
-	packetDataTerminator := getRuneFromEnv("PACKET.TERMINATOR")
 	return &packetConfig{
-		packetMaxLength:      viper.GetInt("PACKET.MAX_LENGTH"),
-		packetDataDelimiter:  packetDataDelimiter,
-		packetDataTerminator: packetDataTerminator,
-		packetResponse:       viper.GetString("PACKET.RESPONSE"),
-		packetToken:          viper.GetString("PACKET.TOKEN"),
+		dataDelimiter:       getRuneFromEnv("PACKET.DELIMITER"),
+		dataTerminator:      getRuneFromEnv("PACKET.TERMINATOR"),
+		response:            viper.GetString("PACKET.RESPONSE"),
+		token:               viper.GetString("PACKET.TOKEN"),
+		valuesCount:         uint8(getUintFromEnv("PACKET.VALUES_COUNT")),
+		nonValuesPartsCount: uint8(getUintFromEnv("PACKET.NON_VALUES_PARTS_COUNT")),
 	}
 }
 
@@ -56,4 +55,8 @@ func setUpEnv() {
 		log.Error("Failed to find both prod and dev configs")
 		panic(err)
 	}
+	// packet config is the same for all environments
+	viper.SetConfigName("packet")
+	viper.AddConfigPath(path)
+	viper.SetConfigType("yml")
 }

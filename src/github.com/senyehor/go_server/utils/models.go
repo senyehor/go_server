@@ -9,11 +9,12 @@ type dbConfig struct {
 }
 
 type packetConfig struct {
-	packetMaxLength      int    `mapstructure:"PACKET_MAX_LENGTH"`
-	packetDataDelimiter  rune   `mapstructure:"PACKET_DATA_DELIMITER"`
-	packetDataTerminator rune   `mapstructure:"PACKET_DATA_TERMINATOR"`
-	packetResponse       string `mapstructure:"PACKET_RESPONSE"`
-	packetToken          string `mapstructure:"PACKET_TOKEN"`
+	dataDelimiter       rune   `mapstructure:"PACKET_DATA_DELIMITER"`
+	dataTerminator      rune   `mapstructure:"PACKET_DATA_TERMINATOR"`
+	response            string `mapstructure:"PACKET_RESPONSE"`
+	token               string `mapstructure:"PACKET_TOKEN"`
+	valuesCount         uint8  `mapstructure:"PACKET_VALUES_COUNT"`
+	nonValuesPartsCount uint8  `mapstructure:"PACKET_NON_VALUES_PARTS_COUNT"`
 }
 
 type appConfig struct {
@@ -21,27 +22,31 @@ type appConfig struct {
 	debug bool   `mapstructure:"DEBUG"`
 }
 
-func (packetConfig *packetConfig) MaxLength() int {
-	return packetConfig.packetMaxLength
-}
 func (packetConfig *packetConfig) DataDelimiter() rune {
-	return packetConfig.packetDataDelimiter
+	return packetConfig.dataDelimiter
 }
 func (packetConfig *packetConfig) DataTerminator() rune {
-	return packetConfig.packetDataTerminator
+	return packetConfig.dataTerminator
 }
 func (packetConfig *packetConfig) Response() string {
-	return packetConfig.packetResponse
+	return packetConfig.response
 }
 func (packetConfig *packetConfig) Token() string {
-	return packetConfig.packetToken
+	return packetConfig.token
+}
+func (packetConfig packetConfig) ValuesCount() uint8 {
+	return packetConfig.valuesCount
 }
 
-func (server *appConfig) ListenAddress() string {
-	return "0.0.0.0:" + server.port
+func (packetConfig packetConfig) NonValuesPartsCount() uint8 {
+	return packetConfig.nonValuesPartsCount
 }
-func (server *appConfig) Debug() bool {
-	return server.debug
+
+func (app *appConfig) ListenAddress() string {
+	return "0.0.0.0:" + app.port
+}
+func (app *appConfig) Debug() bool {
+	return app.debug
 }
 
 func (DBConfig *dbConfig) Username() string {
