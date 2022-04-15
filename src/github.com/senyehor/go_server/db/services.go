@@ -24,13 +24,14 @@ func composeQueryStringToInsertPacket(packetToInsert *packet.Packet) string {
 	insertPart := "insert into sensor_values" +
 		" (sensor_value, value_accumulation_period, package_number, boxes_set_id)"
 	valuesPart := " values "
-	for index, value := range (*packetToInsert).Values() {
+	for item := range packetToInsert.Values().Iterate() {
 		valuesPart += fmt.Sprintf("(%.1f, %v, %v, (select boxes_set_id from"+
 			" boxes_sets bs join boxes b "+
 			"on bs.box_id=b.box_id "+
 			"and box_number='%v' and bs.sensor_number=%v))",
-			value, (*packetToInsert).Time(), (*packetToInsert).PacketNum(), (*packetToInsert).DeviceID(), index+1)
-		if index == packet.ValuesCount-1 { // last value in packetToInsert
+			item.Value(), packetToInsert.Time(), packetToInsert.PacketNum(),
+			packetToInsert.DeviceID(), item.ValuePosition())
+		if item.IsLast() {
 			valuesPart += ";"
 		} else {
 			valuesPart += ", "
