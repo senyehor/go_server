@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
@@ -39,24 +40,29 @@ func GetDBConfig() *dbConfig {
 }
 
 func setUpEnv() {
-	path, _ := os.Getwd()
-	// checks what environment app is running in
-	viper.SetConfigName("dev_config")
+	path, found := os.LookupEnv("GO_APP_CONFIG_PATH")
+	if !found {
+		panic(errors.New("config path environmental variable not found"))
+	}
 	viper.AddConfigPath(path)
+	viper.SetConfigName("packet_config")
 	viper.SetConfigType("yml")
 	err := viper.ReadInConfig()
+	if err != nil {
+		log.Error("Failed to find packet config")
+		panic(err)
+	}
+
+	// checks what environment app is running in
+	viper.SetConfigName("dev_config")
+	err = viper.MergeInConfig()
 	if err == nil {
 		return
 	}
 	viper.SetConfigName("prod_config")
-	viper.AddConfigPath("/bin/")
-	err = viper.ReadInConfig()
+	err = viper.MergeInConfig()
 	if err != nil {
 		log.Error("Failed to find both prod and dev configs")
 		panic(err)
 	}
-	// packet config is the same for all environments
-	viper.SetConfigName("packet")
-	viper.AddConfigPath(path)
-	viper.SetConfigType("yml")
 }

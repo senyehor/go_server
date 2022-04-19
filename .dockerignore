@@ -6,3 +6,4 @@ Dockerfile
 .gitignore
 .git/
 .idea/
+test*.go

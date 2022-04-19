@@ -8,37 +8,35 @@ import (
 )
 
 var (
-	packetConfig = utils.GetPacketConfig()
+	packetConfig            = utils.GetPacketConfig()
+	parsedDataPacketIndexes = getPacketPartsIndexesInParsedData()
 )
 
 func getPacketPartsIndexesInParsedData() *packetPartsIndexesInParsedData {
-	// [Token];[n1];[n2];...;[packetConfig.ValuesCount()];[Time];[PacketNumber];[IDdevice]!
+	// [Token];[n1];[n2];...;[packetConfig.ValuesCount()];[TimeInterval];[PacketNumber];[IDdevice]!
 	//- Packet structure
 	return &packetPartsIndexesInParsedData{
-		token:              0,
-		valuesRangeBorders: newRangeBorders(1, packetConfig.ValuesCount()+1), // left border included, second excluded
+		token: 0,
+		// left border included, second excluded
+		valuesRangeBorders: newRangeBorders(1, packetConfig.ValuesCount()+1),
 		// indexes below are dependent on ValuesCount
-		//and each shifts to one more from right border of values right border
+		//and each shifts to one more from values right border
 		time:         1 + packetConfig.ValuesCount(),
 		packetNumber: 2 + packetConfig.ValuesCount(),
 		deviceID:     3 + packetConfig.ValuesCount(),
 	}
 }
 
-func parseBinaryDataToStringParts(binaryData []byte) ([]string, error) {
-	parts := strings.Split(string(binaryData[:]), string(packetConfig.DataDelimiter()))
-	if !checkPacketLength(parts) {
-		return parts, errors.New("invalid Packet length")
+func parseBinaryDataToStringParts(binaryData []byte) (*incomingDataStringParts, error) {
+	parsedArray := strings.Split(string(binaryData[:]), string(packetConfig.DataDelimiter()))
+	if !checkPacketLength(parsedArray) {
+		return nil, errors.New("invalid packet length")
 	}
-	if !checkPacketToken(parts) {
-		return parts, errors.New("invalid Packet token")
+
+	parts := newIncomingDataStringPartsFromArray(parsedArray)
+	if !checkPacketToken(parts.Token()) {
+		return nil, errors.New("invalid packet token")
 	}
-	// deleting data terminator
-	parts[parsedDataPacketIndexes.deviceID] =
-		strings.TrimRight(
-			parts[parsedDataPacketIndexes.deviceID],
-			string(packetConfig.DataTerminator()),
-		)
 	return parts, nil
 }
 
@@ -46,54 +44,43 @@ func checkPacketLength(packetParts []string) bool {
 	return uint8(len(packetParts)) == packetConfig.NonValuesPartsCount()+packetConfig.ValuesCount()
 }
 
-func checkPacketToken(packetParts []string) bool {
-	return strings.Compare(packetParts[parsedDataPacketIndexes.token], packetConfig.Token()) == 0
+func checkPacketToken(token string) bool {
+	return strings.Compare(token, packetConfig.Token()) == 0
 }
 
-func parsePacketValues(packetParts []string) (packetValues, error) {
-	var values packetValues
-	for partsIndexCounter := parsedDataPacketIndexes.valuesRangeBorders.left; partsIndexCounter < parsedDataPacketIndexes.valuesRangeBorders.right; partsIndexCounter++ {
-		parsedValue, err := strconv.ParseFloat(packetParts[partsIndexCounter], 32)
+func parsePacketValues(incomingValuesToParse []string) (*packetValues, error) {
+	values := newPacketValues()
+	for partsIndexCounter := uint8(0); partsIndexCounter < packetConfig.ValuesCount(); partsIndexCounter++ {
+		parsedValue, err := strconv.ParseFloat(incomingValuesToParse[partsIndexCounter], 64)
 		if err != nil {
-			return values, err
+			return nil, errors.New("failed to parse a packet value")
 		}
-		values = append(values, parsedValue)
+		values.Append(parsedValue)
 	}
 	return values, nil
 
 }
 
-func parseIntConvertToUint(toParse string) (uint, error) {
-	result, err := strconv.Atoi(toParse)
+func parsePacketTime(packetTimeToParse string) (uint, error) {
+	timeInterval, err := utils.ParseIntConvertToUint(packetTimeToParse)
 	if err != nil {
-		return 0, err
+		return 0, errors.New("failed to parse packet timeInterval")
 	}
-	if result < 0 {
-		return 0, errors.New("parsed value is below zero")
-	}
-	return uint(result), nil
+	return timeInterval, nil
 }
 
-func parsePacketTime(packetParts []string) (uint, error) {
-	time, err := parseIntConvertToUint(packetParts[parsedDataPacketIndexes.time])
+func parsePacketNumber(packetNumberToParse string) (uint, error) {
+	packetNumber, err := utils.ParseIntConvertToUint(packetNumberToParse)
 	if err != nil {
-		return 0, err
-	}
-	return time, nil
-}
-
-func parsePacketNumber(packetParts []string) (uint, error) {
-	packetNumber, err := parseIntConvertToUint(packetParts[parsedDataPacketIndexes.packetNumber])
-	if err != nil {
-		return 0, err
+		return 0, errors.New("failed to parse packet number")
 	}
 	return packetNumber, nil
 }
 
-func parsePacketDeviceID(packetParts []string) (uint, error) {
-	packetNumber, err := parseIntConvertToUint(packetParts[parsedDataPacketIndexes.deviceID])
+func parsePacketDeviceID(packetDeviceIDToParse string) (uint, error) {
+	packetNumber, err := utils.ParseIntConvertToUint(packetDeviceIDToParse)
 	if err != nil {
-		return 0, errors.New("failed to parse Packet number")
+		return 0, errors.New("failed to parse packet device id")
 	}
 	return packetNumber, nil
 }

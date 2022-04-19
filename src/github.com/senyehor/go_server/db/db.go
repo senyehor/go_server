@@ -18,7 +18,6 @@ func getConnection() *pgxpool.Pool {
 	pool, err := pgxpool.ConnectConfig(context.Background(), config)
 	if err != nil {
 		log.Error(err)
-		log.Error("Could connect :(")
 		os.Exit(1)
 	}
 	return pool

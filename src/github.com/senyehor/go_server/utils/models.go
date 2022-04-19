@@ -34,7 +34,7 @@ func (packetConfig *packetConfig) Response() string {
 func (packetConfig *packetConfig) Token() string {
 	return packetConfig.token
 }
-func (packetConfig packetConfig) ValuesCount() uint8 {
+func (packetConfig *packetConfig) ValuesCount() uint8 {
 	return packetConfig.valuesCount
 }
 

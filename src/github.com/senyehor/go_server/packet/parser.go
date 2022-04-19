@@ -4,10 +4,6 @@ import (
 	"errors"
 )
 
-var (
-	parsedDataPacketIndexes = getPacketPartsIndexesInParsedData()
-)
-
 func ParseFromBinary(binaryData []byte) (*Packet, error) {
 	// function returns nil if parsing goes wrong otherwise Packet obj
 	packetParts, err := parseBinaryDataToStringParts(binaryData)
@@ -15,19 +11,19 @@ func ParseFromBinary(binaryData []byte) (*Packet, error) {
 		return nil, err
 	}
 
-	values, err := parsePacketValues(packetParts)
+	values, err := parsePacketValues(packetParts.Values())
 	if err != nil {
 		return nil, errors.New("failed to parse value from sensor")
 	}
-	time, err := parsePacketTime(packetParts)
+	time, err := parsePacketTime(packetParts.Time())
 	if err != nil {
-		return nil, errors.New("failed to parse time")
+		return nil, errors.New("failed to parse timeInterval")
 	}
-	number, err := parsePacketNumber(packetParts)
+	number, err := parsePacketNumber(packetParts.PacketNumber())
 	if err != nil {
 		return nil, errors.New("failed to parse Packet number")
 	}
-	deviceID, err := parsePacketDeviceID(packetParts)
+	deviceID, err := parsePacketDeviceID(packetParts.DeviceID())
 	if err != nil {
 		return nil, errors.New("failed to parse device id")
 	}
