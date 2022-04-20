@@ -22,16 +22,16 @@ type Packet struct {
 }
 
 type rangeBorders struct {
-	left  uint8
-	right uint8
+	left  uint
+	right uint
 }
 
 type packetPartsIndexesInParsedData struct {
-	token              uint8
+	token              uint
 	valuesRangeBorders *rangeBorders
-	time               uint8
-	packetNumber       uint8
-	deviceID           uint8
+	time               uint
+	packetNumber       uint
+	deviceID           uint
 }
 
 type incomingDataStringParts struct {
@@ -42,18 +42,20 @@ type incomingDataStringParts struct {
 	deviceID string
 }
 
-func newPacketValues() *packetValues {
+func newEmptyPacketValues() *packetValues {
 	return &packetValues{values: []float64{}}
 }
-func (p *packetValues) Append(value float64) {
-	if uint8(len(p.values)) == packetConfig.ValuesCount() {
-		// todo remake to error
-		panic("exceeded values part capacity")
+func (p *packetValues) Append(value float64) bool {
+	if uint(len(p.values)) == packetConfig.ValuesCount() {
+		return false
 	}
 	p.values = append(p.values, value)
+	return true
 }
+
+// Iterate returns if element is last, element itself, and it`s position
 func (p *packetValues) Iterate() <-chan *packetValuesIterationReturn {
-	// returns if element is last, element itself, and it`s position
+
 	channel := make(chan *packetValuesIterationReturn)
 	go func() {
 		length := len(p.values)
@@ -79,8 +81,8 @@ func (p *packetValuesIterationReturn) ValuePosition() int {
 	return p.valuePosition
 }
 
-func NewPacket(values *packetValues, time uint, packetNum uint, deviceID uint) *Packet {
-	return &Packet{values: values, timeInterval: time, packetNum: packetNum, deviceID: deviceID}
+func NewPacket(values *packetValues, timeInterval uint, packetNum uint, deviceID uint) *Packet {
+	return &Packet{values: values, timeInterval: timeInterval, packetNum: packetNum, deviceID: deviceID}
 }
 func (p *Packet) Values() *packetValues {
 	return p.values
@@ -95,13 +97,13 @@ func (p *Packet) DeviceID() uint {
 	return p.deviceID
 }
 
-func newRangeBorders(left uint8, right uint8) *rangeBorders {
+func newRangeBorders(left uint, right uint) *rangeBorders {
 	return &rangeBorders{left: left, right: right}
 }
-func (rangeBorders *rangeBorders) Left() uint8 {
+func (rangeBorders *rangeBorders) Left() uint {
 	return rangeBorders.left
 }
-func (rangeBorders *rangeBorders) Right() uint8 {
+func (rangeBorders *rangeBorders) Right() uint {
 	return rangeBorders.right
 }
 
@@ -149,7 +151,6 @@ func (i *incomingDataStringParts) IsEqual(other *incomingDataStringParts) bool {
 	}
 	return i.DeviceID() == other.DeviceID()
 }
-
 func (i *incomingDataStringParts) Copy() *incomingDataStringParts {
 	valuesCopy := make([]string, packetConfig.ValuesCount())
 	copy(valuesCopy, i.Values())

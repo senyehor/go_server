@@ -20,12 +20,12 @@ func GetAppConfig() *appConfig {
 
 func GetPacketConfig() *packetConfig {
 	return &packetConfig{
-		dataDelimiter:       getRuneFromEnv("PACKET.DELIMITER"),
-		dataTerminator:      getRuneFromEnv("PACKET.TERMINATOR"),
-		response:            viper.GetString("PACKET.RESPONSE"),
-		token:               viper.GetString("PACKET.TOKEN"),
-		valuesCount:         uint8(getUintFromEnv("PACKET.VALUES_COUNT")),
-		nonValuesPartsCount: uint8(getUintFromEnv("PACKET.NON_VALUES_PARTS_COUNT")),
+		dataDelimiter:   getRuneFromEnv("PACKET.DELIMITER"),
+		dataTerminator:  getRuneFromEnv("PACKET.TERMINATOR"),
+		response:        viper.GetString("PACKET.RESPONSE"),
+		token:           viper.GetString("PACKET.TOKEN"),
+		valuesCount:     getUintFromEnv("PACKET.VALUES_COUNT"),
+		otherPartsCount: getUintFromEnv("PACKET.NON_VALUES_PARTS_COUNT"),
 	}
 }
 

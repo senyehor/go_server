@@ -15,7 +15,7 @@ func ParseFromBinary(binaryData []byte) (*Packet, error) {
 	if err != nil {
 		return nil, errors.New("failed to parse value from sensor")
 	}
-	time, err := parsePacketTime(packetParts.Time())
+	time, err := parsePacketTimeInterval(packetParts.Time())
 	if err != nil {
 		return nil, errors.New("failed to parse timeInterval")
 	}

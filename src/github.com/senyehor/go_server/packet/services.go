@@ -12,9 +12,10 @@ var (
 	parsedDataPacketIndexes = getPacketPartsIndexesInParsedData()
 )
 
+// getPacketPartsIndexesInParsedData
+// [Token];[n1];[n2];...;[packetConfig.ValuesCount()];[TimeInterval];[PacketNumber];[IDdevice]!
+//- Packet structure
 func getPacketPartsIndexesInParsedData() *packetPartsIndexesInParsedData {
-	// [Token];[n1];[n2];...;[packetConfig.ValuesCount()];[TimeInterval];[PacketNumber];[IDdevice]!
-	//- Packet structure
 	return &packetPartsIndexesInParsedData{
 		token: 0,
 		// left border included, second excluded
@@ -28,12 +29,12 @@ func getPacketPartsIndexesInParsedData() *packetPartsIndexesInParsedData {
 }
 
 func parseBinaryDataToStringParts(binaryData []byte) (*incomingDataStringParts, error) {
-	parsedArray := strings.Split(string(binaryData[:]), string(packetConfig.DataDelimiter()))
-	if !checkPacketLength(parsedArray) {
+	arrayOfParsedItems := strings.Split(string(binaryData[:]), string(packetConfig.DataDelimiter()))
+	if !checkPacketLength(arrayOfParsedItems) {
 		return nil, errors.New("invalid packet length")
 	}
 
-	parts := newIncomingDataStringPartsFromArray(parsedArray)
+	parts := newIncomingDataStringPartsFromArray(arrayOfParsedItems)
 	if !checkPacketToken(parts.Token()) {
 		return nil, errors.New("invalid packet token")
 	}
@@ -41,7 +42,7 @@ func parseBinaryDataToStringParts(binaryData []byte) (*incomingDataStringParts, 
 }
 
 func checkPacketLength(packetParts []string) bool {
-	return uint8(len(packetParts)) == packetConfig.NonValuesPartsCount()+packetConfig.ValuesCount()
+	return uint(len(packetParts)) == packetConfig.OtherValuesCount()+packetConfig.ValuesCount()
 }
 
 func checkPacketToken(token string) bool {
@@ -49,20 +50,21 @@ func checkPacketToken(token string) bool {
 }
 
 func parsePacketValues(incomingValuesToParse []string) (*packetValues, error) {
-	values := newPacketValues()
-	for partsIndexCounter := uint8(0); partsIndexCounter < packetConfig.ValuesCount(); partsIndexCounter++ {
+	values := newEmptyPacketValues()
+	for partsIndexCounter := uint(0); partsIndexCounter < packetConfig.ValuesCount(); partsIndexCounter++ {
 		parsedValue, err := strconv.ParseFloat(incomingValuesToParse[partsIndexCounter], 64)
 		if err != nil {
 			return nil, errors.New("failed to parse a packet value")
 		}
-		values.Append(parsedValue)
+		if !values.Append(parsedValue) {
+			return nil, errors.New("exceeded values capacity")
+		}
 	}
 	return values, nil
-
 }
 
-func parsePacketTime(packetTimeToParse string) (uint, error) {
-	timeInterval, err := utils.ParseIntConvertToUint(packetTimeToParse)
+func parsePacketTimeInterval(packetTimeIntervalToParse string) (uint, error) {
+	timeInterval, err := utils.ParseIntConvertToUint(packetTimeIntervalToParse)
 	if err != nil {
 		return 0, errors.New("failed to parse packet timeInterval")
 	}

@@ -9,12 +9,12 @@ type dbConfig struct {
 }
 
 type packetConfig struct {
-	dataDelimiter       rune   `mapstructure:"PACKET_DATA_DELIMITER"`
-	dataTerminator      rune   `mapstructure:"PACKET_DATA_TERMINATOR"`
-	response            string `mapstructure:"PACKET_RESPONSE"`
-	token               string `mapstructure:"PACKET_TOKEN"`
-	valuesCount         uint8  `mapstructure:"PACKET_VALUES_COUNT"`
-	nonValuesPartsCount uint8  `mapstructure:"PACKET_NON_VALUES_PARTS_COUNT"`
+	dataDelimiter   rune   `mapstructure:"PACKET_DATA_DELIMITER"`
+	dataTerminator  rune   `mapstructure:"PACKET_DATA_TERMINATOR"`
+	response        string `mapstructure:"PACKET_RESPONSE"`
+	token           string `mapstructure:"PACKET_TOKEN"`
+	valuesCount     uint   `mapstructure:"PACKET_VALUES_COUNT"`
+	otherPartsCount uint   `mapstructure:"PACKET_NON_VALUES_PARTS_COUNT"`
 }
 
 type appConfig struct {
@@ -34,12 +34,12 @@ func (packetConfig *packetConfig) Response() string {
 func (packetConfig *packetConfig) Token() string {
 	return packetConfig.token
 }
-func (packetConfig *packetConfig) ValuesCount() uint8 {
+func (packetConfig *packetConfig) ValuesCount() uint {
 	return packetConfig.valuesCount
 }
 
-func (packetConfig packetConfig) NonValuesPartsCount() uint8 {
-	return packetConfig.nonValuesPartsCount
+func (packetConfig packetConfig) OtherValuesCount() uint {
+	return packetConfig.otherPartsCount
 }
 
 func (app *appConfig) ListenAddress() string {

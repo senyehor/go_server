@@ -11,7 +11,7 @@ import (
 func getRuneFromEnv(key string) rune {
 	value := viper.GetString(key)
 	if len(value) != 1 {
-		log.Error(value)
+		log.Errorf("getRuneFromEnv received %v", value)
 		panic(errors.New("rune value must be 1 symbol long"))
 	}
 	return rune(value[0])
@@ -26,7 +26,7 @@ func getUintFromEnv(key string) uint {
 }
 
 func ParseIntConvertToUint(toParse string) (uint, error) {
-	result, err := strconv.Atoi(toParse)
+	result, err := strconv.ParseUint(toParse, 10, 32)
 	if err != nil {
 		return 0, err
 	}
