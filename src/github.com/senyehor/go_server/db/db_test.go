@@ -30,5 +30,4 @@ func (d *DBTestSuite) TestSavePacket() {
 	defer tx.Rollback(context.Background())
 	//var values []string
 	rand.Seed(time.Now().UnixMilli())
-
 }

@@ -1,10 +1,11 @@
-package packet
+package binary_parser
 
 import (
 	"errors"
+	"github.com/senyehor/go_server/packet"
 )
 
-func ParseFromBinary(binaryData []byte) (*Packet, error) {
+func ParseFromBinary(binaryData []byte) (*packet.Packet, error) {
 	// function returns nil if parsing goes wrong otherwise Packet obj
 	packetParts, err := parseBinaryDataToStringParts(binaryData)
 	if err != nil {
@@ -28,5 +29,5 @@ func ParseFromBinary(binaryData []byte) (*Packet, error) {
 		return nil, errors.New("failed to parse device id")
 	}
 
-	return NewPacket(values, time, number, deviceID), nil
+	return packet.NewPacket(values, time, number, deviceID), nil
 }

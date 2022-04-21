@@ -25,6 +25,17 @@ func getUintFromEnv(key string) uint {
 	return result
 }
 
+func ParsePositiveInt(toParse string) (int, error) {
+	result, err := strconv.ParseUint(toParse, 10, 32)
+	if err != nil {
+		return 0, err
+	}
+	if result < 0 {
+		return 0, errors.New("parsed value is below zero")
+	}
+	return result, nil
+}
+
 func ParseIntConvertToUint(toParse string) (uint, error) {
 	result, err := strconv.ParseUint(toParse, 10, 32)
 	if err != nil {

@@ -13,8 +13,8 @@ type packetConfig struct {
 	dataTerminator  rune   `mapstructure:"PACKET_DATA_TERMINATOR"`
 	response        string `mapstructure:"PACKET_RESPONSE"`
 	token           string `mapstructure:"PACKET_TOKEN"`
-	valuesCount     uint   `mapstructure:"PACKET_VALUES_COUNT"`
-	otherPartsCount uint   `mapstructure:"PACKET_NON_VALUES_PARTS_COUNT"`
+	valuesCount     int    `mapstructure:"PACKET_VALUES_COUNT"`
+	otherPartsCount int    `mapstructure:"PACKET_NON_VALUES_PARTS_COUNT"`
 }
 
 type appConfig struct {
@@ -34,11 +34,11 @@ func (packetConfig *packetConfig) Response() string {
 func (packetConfig *packetConfig) Token() string {
 	return packetConfig.token
 }
-func (packetConfig *packetConfig) ValuesCount() uint {
+func (packetConfig *packetConfig) ValuesCount() int {
 	return packetConfig.valuesCount
 }
 
-func (packetConfig packetConfig) OtherValuesCount() uint {
+func (packetConfig packetConfig) OtherValuesCount() int {
 	return packetConfig.otherPartsCount
 }
 
