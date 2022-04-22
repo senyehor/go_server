@@ -9,16 +9,25 @@ import (
 
 func init() {
 	setUpEnv()
+	PacketConfig = getPacketConfig()
+	AppConfig = getAppConfig()
+	DBConfig = getDBConfig()
 }
 
-func GetAppConfig() *appConfig {
+var (
+	PacketConfig *packetConfig
+	AppConfig    *appConfig
+	DBConfig     *dbConfig
+)
+
+func getAppConfig() *appConfig {
 	return &appConfig{
 		port:  viper.GetString("APP.PORT"),
 		debug: viper.GetBool("APP.DEBUG"),
 	}
 }
 
-func GetPacketConfig() *packetConfig {
+func getPacketConfig() *packetConfig {
 	return &packetConfig{
 		dataDelimiter:  getRuneFromEnv("PACKET.DELIMITER"),
 		dataTerminator: getRuneFromEnv("PACKET.TERMINATOR"),
@@ -30,7 +39,7 @@ func GetPacketConfig() *packetConfig {
 	}
 }
 
-func GetDBConfig() *dbConfig {
+func getDBConfig() *dbConfig {
 	return &dbConfig{
 		DBUsername: viper.GetString("DB.USERNAME"),
 		DBPassword: viper.GetString("DB.PASSWORD"),

@@ -2,14 +2,14 @@ package binary_parser
 
 import (
 	"errors"
-	"github.com/senyehor/go_server/packet"
+	"github.com/senyehor/go_server/data_models"
 )
 
-func ParseFromBinary(binaryData []byte) (*packet.Packet, error) {
-	// function returns nil if parsing goes wrong otherwise Packet obj
+// ParseFromBinary returns nil if parsing goes wrong otherwise *packet
+func ParseFromBinary(binaryData []byte) (*data_models.Packet, error) {
 	packetParts, err := parseBinaryDataToStringParts(binaryData)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("failed to split packet data to parts")
 	}
 
 	values, err := parsePacketValues(packetParts.Values())
@@ -22,12 +22,16 @@ func ParseFromBinary(binaryData []byte) (*packet.Packet, error) {
 	}
 	number, err := parsePacketNumber(packetParts.PacketNumber())
 	if err != nil {
-		return nil, errors.New("failed to parse Packet number")
+		return nil, errors.New("failed to parse packet number")
 	}
 	deviceID, err := parsePacketDeviceID(packetParts.DeviceID())
 	if err != nil {
 		return nil, errors.New("failed to parse device id")
 	}
 
-	return packet.NewPacket(values, time, number, deviceID), nil
+	packet, err := data_models.NewPacket(values, time, number, deviceID)
+	if err != nil {
+		return nil, errors.New("failed to create packet")
+	}
+	return packet, nil
 }

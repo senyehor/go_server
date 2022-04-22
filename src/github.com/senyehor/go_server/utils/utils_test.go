@@ -38,10 +38,10 @@ func (u *utilsTestSuite) TestParseIntConvertToUint() {
 }
 
 func (u *utilsTestSuite) TestCompareFloats() {
-	u.True(CompareFloats(0.0, 0.0))
-	u.True(CompareFloats(-1111111111.11111, -1111111111.11111))
-	u.True(CompareFloats(1111111111.11111, 1111111111.11111))
+	u.True(CompareFloatsPrecise(0.0, 0.0))
+	u.True(CompareFloatsPrecise(-1111111111.11111, -1111111111.11111))
+	u.True(CompareFloatsPrecise(1111111111.11111, 1111111111.11111))
 
-	u.False(CompareFloats(0.1, 0.2))
-	u.False(CompareFloats(-1111111111.11111, 1111111111.11111))
+	u.False(CompareFloatsPrecise(0.1, 0.2))
+	u.False(CompareFloatsPrecise(-1111111111.11111, 1111111111.11111))
 }

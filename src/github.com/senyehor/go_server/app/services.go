@@ -3,11 +3,12 @@ package app
 import (
 	"bufio"
 	"github.com/maurice2k/tcpserver"
+	"github.com/senyehor/go_server/utils"
 	log "github.com/sirupsen/logrus"
 )
 
 func getBinaryDataFromConnection(incomingConnection *tcpserver.Connection) ([]byte, error) {
-	data, err := bufio.NewReader(*incomingConnection).ReadBytes(byte(packetConfig.DataTerminator()))
+	data, err := bufio.NewReader(*incomingConnection).ReadBytes(byte(utils.PacketConfig.DataTerminator()))
 	if err != nil {
 		return nil, err
 	}
@@ -16,9 +17,9 @@ func getBinaryDataFromConnection(incomingConnection *tcpserver.Connection) ([]by
 }
 
 func confirmPacketProcessed(incomingConnection *tcpserver.Connection) {
-	_, err := (*incomingConnection).Write([]byte(packetConfig.Response()))
+	_, err := (*incomingConnection).Write([]byte(utils.PacketConfig.Response()))
 	if err != nil {
 		log.Error("failed to send confirmation")
 	}
-	log.Info("Confirmed packet was processed successfully")
+	log.Info("Confirmed Packet was processed successfully")
 }

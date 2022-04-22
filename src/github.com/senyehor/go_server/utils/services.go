@@ -33,7 +33,7 @@ func ParsePositiveInt(toParse string) (int, error) {
 	if result < 0 {
 		return 0, errors.New("parsed value is below zero")
 	}
-	return result, nil
+	return int(result), nil
 }
 
 func ParseIntConvertToUint(toParse string) (uint, error) {
@@ -47,8 +47,8 @@ func ParseIntConvertToUint(toParse string) (uint, error) {
 	return uint(result), nil
 }
 
-func CompareFloats(a, b float64) bool {
+func CompareFloatsPrecise(a, b float64) bool {
 	a = math.Abs(a)
 	b = math.Abs(b)
-	return math.Abs(a-b) < 0.0001
+	return math.Abs(a-b) < 0.0_000_000_1
 }

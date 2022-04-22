@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	packetConfig            = utils.GetPacketConfig()
+	packetConfig            = utils.PacketConfig
 	parsedDataPacketIndexes = getPacketPartsIndexesInParsedData()
 )
 

@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	appConfig := utils.GetAppConfig()
+	appConfig := utils.AppConfig
 	if appConfig.Debug() {
 		log.SetLevel(log.DebugLevel)
 	}
@@ -16,7 +16,7 @@ func main() {
 	if err != nil {
 		log.Error("Server failed to start")
 	}
-	server.SetRequestHandler(app.ProcessIncomingPacket)
+	server.SetRequestHandler(app.ProcessIncomingRawPacket)
 	err = server.Listen()
 	if err != nil {
 		log.Error("Server failed to start listening")

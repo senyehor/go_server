@@ -1,0 +1,4 @@
+Currently app processes only TCP binary data
+
+packet:
+    all validation goes in packet.models

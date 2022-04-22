@@ -24,11 +24,10 @@ func getConnection() *pgxpool.Pool {
 }
 
 func getConnString() string {
-	dbConfig := utils.GetDBConfig()
 	return "postgres://" +
-		dbConfig.Username() + ":" +
-		dbConfig.Password() + "@" +
-		dbConfig.Host() + ":" +
-		dbConfig.Port() +
-		"/" + dbConfig.Name()
+		utils.DBConfig.Username() + ":" +
+		utils.DBConfig.Password() + "@" +
+		utils.DBConfig.Host() + ":" +
+		utils.DBConfig.Port() +
+		"/" + utils.DBConfig.Name()
 }
