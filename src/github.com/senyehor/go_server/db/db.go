@@ -1,18 +1,20 @@
 package db
 
 import (
-	log "github.com/sirupsen/logrus"
+	"context"
+	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/senyehor/go_server/app"
 )
 
-// todo make db struct
+type DB struct {
+	conn *pgxpool.Pool
+}
 
-func SavePacket(packet packet) error {
-	queryStringToInsertPacket := composeQueryStringToInsertPacket(packet)
-	_, err := executeQuery(queryStringToInsertPacket)
-	if err != nil {
-		log.Debug("failed to save packet")
-		return err
-	}
-	log.Debug("packet was inserted into db")
-	return nil
+func GetDB() *DB {
+	return &DB{conn: getConnection()}
+}
+
+func (db *DB) Execute(query string) (app.QueryResult, error) {
+	// todo possible timeout
+	return db.conn.Exec(context.Background(), query)
 }

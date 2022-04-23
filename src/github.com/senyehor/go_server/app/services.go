@@ -2,24 +2,69 @@ package app
 
 import (
 	"bufio"
-	"github.com/maurice2k/tcpserver"
+	"fmt"
+	"github.com/senyehor/go_server/binary_parser"
+	"github.com/senyehor/go_server/data_models"
 	"github.com/senyehor/go_server/utils"
 	log "github.com/sirupsen/logrus"
+	"net"
 )
 
-func getBinaryDataFromConnection(incomingConnection *tcpserver.Connection) ([]byte, error) {
-	data, err := bufio.NewReader(*incomingConnection).ReadBytes(byte(utils.PacketConfig.DataTerminator()))
+type dbConnection interface {
+	Execute(query string) (QueryResult, error)
+}
+
+type QueryResult interface {
+	RowsAffected() int64
+	String() string
+	Insert() bool
+	Update() bool
+	Delete() bool
+	Select() bool
+}
+
+func getBinaryDataFromConnection(incomingConnection net.Conn) ([]byte, error) {
+	data, err := bufio.NewReader(incomingConnection).ReadBytes(byte(utils.PacketConfig.DataTerminator()))
 	if err != nil {
 		return nil, err
 	}
-	log.Debug("I received some data from connection")
+	log.Debug("I received some data from db")
 	return data, nil
 }
 
-func confirmPacketProcessed(incomingConnection *tcpserver.Connection) {
-	_, err := (*incomingConnection).Write([]byte(utils.PacketConfig.Response()))
+func composeConfirmationMessage() []byte {
+	return []byte(utils.PacketConfig.Response())
+}
+
+func tryParsePacketFromIncomingData(incomingConnection net.Conn) (*data_models.Packet, error) {
+	rawData, err := getBinaryDataFromConnection(incomingConnection)
 	if err != nil {
-		log.Error("failed to send confirmation")
+		return nil, err
 	}
-	log.Info("Confirmed Packet was processed successfully")
+	result, err := binary_parser.ParseFromBinary(rawData)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func composeQueryToInsertPacket(packet *data_models.Packet) string {
+	insertPart := "insert into sensor_values" +
+		" (sensor_value, value_accumulation_period, package_number, boxes_set_id)"
+	valuesPart := " values "
+	iterator := packet.Values().Iterator()
+	for iterator.HasNext() {
+		valuesPart += fmt.Sprintf(
+			"(%v, %v, %v, "+
+				"(select boxes_set_id from boxes_sets bs join boxes b "+
+				"on bs.box_id=b.box_id and box_number='%v' and bs.sensor_number=%v))",
+			iterator.Value(), packet.TimeInterval(), packet.PacketNum(),
+			packet.DeviceID(), iterator.ValuePosition()+1)
+		if iterator.IsLast() {
+			valuesPart += ";"
+		} else {
+			valuesPart += ", "
+		}
+	}
+	return insertPart + valuesPart
 }

@@ -12,11 +12,12 @@ func main() {
 	if appConfig.Debug() {
 		log.SetLevel(log.DebugLevel)
 	}
+	application := app.CreateApp()
 	server, err := tcpserver.NewServer(appConfig.ListenAddress())
 	if err != nil {
 		log.Error("Server failed to start")
 	}
-	server.SetRequestHandler(app.ProcessIncomingRawPacket)
+	server.SetRequestHandler(application.BinaryDataHandler())
 	err = server.Listen()
 	if err != nil {
 		log.Error("Server failed to start listening")
