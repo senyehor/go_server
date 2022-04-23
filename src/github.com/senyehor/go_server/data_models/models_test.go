@@ -1,160 +1,118 @@
 package data_models
 
 import (
-	"fmt"
 	"github.com/senyehor/go_server/utils"
 	"github.com/stretchr/testify/suite"
-	"math/rand"
 	"testing"
-	"time"
 )
 
-func TestPacket(t *testing.T) {
+func TestDataModels(t *testing.T) {
 	suite.Run(t, new(appModelsTestSuite))
 }
 
 type appModelsTestSuite struct {
 	suite.Suite
-	correctValues []float64
+	correctValues      []float64
+	incorrectValuesSet [][]float64
 	correctTimeInterval,
 	correctPacketNumber,
 	correctDeviceID int
 }
 
 func (s *appModelsTestSuite) SetupTest() {
-	rand.Seed(time.Now().UnixNano())
-	// filling with random negative and positive numbers and ensuring values has correct length
-	for i := 0; i < utils.PacketConfig.ValuesCount(); i++ {
-		s.correctValues = append(s.correctValues, (rand.Float64()-float64(0.5))*(1_000_000))
-	}
-	getPositiveInt := func() int {
-		result := rand.Int()
-		for result = rand.Int(); result < 0; {
-			result = rand.Int()
+	// Setup set is called multiple times, so there is no point to reinitialize values each time
+	if s.correctValues == nil {
+		// filling with random negative and positive numbers and ensuring values has correct length
+		for i := 0; i < utils.PacketConfig.ValuesCount(); i++ {
+			s.correctValues = append(s.correctValues, utils.RandFloat64())
 		}
-		return result
+		// creating possible incorrect values
+		longerValues := make([]float64, utils.PacketConfig.ValuesCount())
+		copy(longerValues, s.correctValues)
+		longerValues = append(longerValues, utils.RandFloat64())
+		s.incorrectValuesSet = append(s.incorrectValuesSet, longerValues)
+		shorterValues := longerValues[:len(longerValues)-2]
+		s.incorrectValuesSet = append(s.incorrectValuesSet, shorterValues)
+		s.incorrectValuesSet = append(s.incorrectValuesSet, nil)
 	}
-	s.correctTimeInterval = getPositiveInt()
-	s.correctPacketNumber = getPositiveInt()
-	s.correctDeviceID = getPositiveInt()
+
+	s.correctTimeInterval = utils.RandPositiveInt()
+	s.correctPacketNumber = utils.RandPositiveInt()
+	s.correctDeviceID = utils.RandPositiveInt()
 }
 
-func (s *appModelsTestSuite) TestCreatingPacketFromKnowinglyCorrectData() {
-	fmt.Print("aaa")
+func (s *appModelsTestSuite) TestCreatingPacket() {
+	result, err := NewPacket(s.correctValues, s.correctTimeInterval, s.correctPacketNumber, s.correctDeviceID)
+	s.NoError(err, "NewPacket returned err with correct incoming data")
+	valuesIterator := result.Values().Iterator()
+	for valuesIterator.HasNext() {
+		s.True(
+			utils.CompareFloatsPrecise(valuesIterator.Value(), s.correctValues[valuesIterator.ValuePosition()]),
+			"packet values does not match expected",
+		)
+	}
+	s.Equal(s.correctTimeInterval, result.TimeInterval(), "packet was created with wrong time interval")
+	s.Equal(s.correctPacketNumber, result.PacketNum(), "packet was created with wrong number")
+	s.Equal(s.correctDeviceID, result.DeviceID(), "packet was created with wrong device id")
+
+	for _, incorrectValues := range s.incorrectValuesSet {
+		result, err := NewPacket(incorrectValues, s.correctTimeInterval, s.correctPacketNumber, s.correctDeviceID)
+		s.Nil(result, "NewPacket did not return nil, when wrong values were passed")
+		s.Error(err, "newPacketValues did not return error, when wrong values were passed")
+	}
+
+	// currently, only limitation for time interval, packet number is device id is to be > 0
+	result, err = NewPacket(s.correctValues, s.correctTimeInterval*(-1.0), s.correctPacketNumber, s.correctDeviceID)
+	s.Nil(result, "NewPacket did not return nil, when negative time interval was passed")
+	s.Error(err, "newPacketValues did not return error, when negative time interval was passed")
+
+	result, err = NewPacket(s.correctValues, s.correctTimeInterval, s.correctPacketNumber*(-1.0), s.correctDeviceID)
+	s.Nil(result, "NewPacket did not return nil, when negative packet number was passed")
+	s.Error(err, "newPacketValues did not return error, when negative packet number was passed")
+
+	result, err = NewPacket(s.correctValues, s.correctTimeInterval, s.correctPacketNumber, s.correctDeviceID*(-1.0))
+	s.Nil(result, "NewPacket did not return nil, when negative packet number was passed")
+	s.Error(err, "newPacketValues did not return error, when negative packet number was passed")
 }
 
-//func (s *appModelsTestSuite) TestParsingIncomingDataWithCorrectValues() {
-//	correctBinaryData := s.composeIncomingBinaryData(
-//		s.correctIncomingDataParts,
-//		string(s.correctDelimiter),
-//		string(s.correctTerminator),
-//	)
-//	parts, err := s.testParsingBinaryDataToStringParts(correctBinaryData)
-//	s.NoError(err, "parsing binary data to string parts went wrong")
-//
-//	s.NoError(s.testParsePacketValues(parts), "parsing Packet packetValues went wrong")
-//	s.NoError(s.testParsePacketTimeInterval(parts), "parsing Packet time interval went wrong")
-//	s.NoError(s.testParsePacketNumber(parts), "parsing Packet number went wrong")
-//	s.NoError(s.testParsePacketDeviceId(parts), "parsing Packet device id went wrong")
-//}
-//
-//func (s *appModelsTestSuite) TestParsingToStringPartsWithWrongDelimiter() {
-//	binaryDataWithWrongDelimiter := s.composeIncomingBinaryData(
-//		s.correctIncomingDataParts,
-//		"wrong delimiter",
-//		string(s.correctTerminator),
-//	)
-//	_, err := s.testParsingBinaryDataToStringParts(binaryDataWithWrongDelimiter)
-//	s.Error(err, "parsing binary data to string parts with wrong delimiter did not return error")
-//}
-//
-//func (s *appModelsTestSuite) TestParsingToStringPartsWithWrongTerminator() {
-//	binaryDataWithWrongTerminator := s.composeIncomingBinaryData(
-//		s.correctIncomingDataParts,
-//		string(s.correctDelimiter),
-//		"wrong terminator",
-//	)
-//	_, err := s.testParsingBinaryDataToStringParts(binaryDataWithWrongTerminator)
-//	s.Error(err, "parsing binary data to string parts with wrong  did not return error")
-//}
-//
-//func (s *appModelsTestSuite) testParsingBinaryDataToStringParts(incomingData []byte) (*incomingDataStringParts, error) {
-//	parts, err := parseBinaryDataToStringParts(incomingData)
-//	if err != nil {
-//		return nil, errors.New("parsing incoming binary data into string parts returned err")
-//	}
-//	if !s.correctIncomingDataParts.IsEqual(parts) {
-//		return nil, errors.New("parsing binary data into string parts went wrong")
-//	}
-//	return parts, nil
-//}
-//
-//func (s *appModelsTestSuite) testParsePacketValues(packetParts *incomingDataStringParts) error {
-//	values, err := parsePacketValues(packetParts.Values())
-//	if err != nil {
-//		return err
-//	}
-//	for iterItem := range values.Iterate() {
-//		if !utils.CompareFloatsPrecise(iterItem.Value(), s.expectedParsedValues[iterItem.ValuePosition()]) {
-//			return errors.New("parsed value does not match expected")
-//		}
-//	}
-//	return nil
-//}
-//
-//func (s *appModelsTestSuite) testParsePacketTimeInterval(packetParts *incomingDataStringParts) error {
-//	time, err := parsePacketTimeInterval(packetParts.Time())
-//	if err != nil {
-//		return errors.New("parsing Packet timeInterval part returner err")
-//	}
-//	if cast.ToUint(packetParts.Time()) != time {
-//		return errors.New("Packet time was not parsed correctly")
-//	}
-//	return nil
-//}
-//
-//func (s *appModelsTestSuite) testParsePacketNumber(packetParts *incomingDataStringParts) error {
-//	packetNumber, err := parsePacketNumber(packetParts.PacketNumber())
-//	if err != nil {
-//		return errors.New("parsing Packet number part returner err")
-//	}
-//	if cast.ToUint(packetParts.PacketNumber()) != packetNumber {
-//		return errors.New("Packet number was not parsed correctly")
-//	}
-//	return nil
-//}
-//
-//func (s *appModelsTestSuite) testParsePacketDeviceId(packetParts *incomingDataStringParts) error {
-//	deviceID, err := parsePacketDeviceID(packetParts.DeviceID())
-//	if err != nil {
-//		return errors.New("parsing deviceID was part returner err")
-//	}
-//	if cast.ToUint(packetParts.DeviceID()) != deviceID {
-//		return errors.New("Packet deviceID was not parsed correctly")
-//	}
-//	return nil
-//}
-//
-//func (s *appModelsTestSuite) getCorrectIncomingDataParts() *incomingDataStringParts {
-//	values := []string{
-//		"1.0", "2.00", "3.000", "4", "5", "6", "7", "8", "9", "10",
-//		"1", "2", "3", "4.4", "5", "6.666666"}
-//	return newIncomingDataStringParts(
-//		packetConfig.Token(),
-//		values,
-//		"555555555",
-//		"13",
-//		"1",
-//	)
-//}
-//
-//func (s *appModelsTestSuite) composeIncomingBinaryData(
-//	dataParts *incomingDataStringParts, delimiter, terminator string) []byte {
-//
-//	Packet := dataParts.Token() + delimiter +
-//		strings.Join(dataParts.Values(), delimiter) + delimiter +
-//		dataParts.Time() + delimiter +
-//		dataParts.PacketNumber() + delimiter +
-//		dataParts.DeviceID() + terminator
-//	return []byte(Packet)
-//}
+func (s *appModelsTestSuite) TestCreatingPacketValues() {
+	result, err := newPacketValues(s.correctValues)
+	s.NoError(err, "packet values were not created with correct incoming data")
+	s.Equal(len(s.correctValues), len(result.values), "packet values were made with incorrect length")
+	for index, value := range result.values {
+		s.True(
+			utils.CompareFloatsPrecise(s.correctValues[index], value),
+			"packet values incorrectValuesSet did not match expected",
+		)
+	}
+
+	for _, incorrectValues := range s.incorrectValuesSet {
+		result, err = newPacketValues(incorrectValues)
+		s.Nil(result, "newPacketValues did not return nil, when wrong data was passed")
+		s.Error(err, "newPacketValues did not return error, when wrong data was passed")
+	}
+}
+
+func (s *appModelsTestSuite) TestValueIterator() {
+	packetValues, err := newPacketValues(s.correctValues)
+	if err != nil {
+		s.Fail("newPacketValues returned err while provided correct values")
+	}
+
+	iterator := packetValues.Iterator()
+	for range s.correctValues {
+		s.True(iterator.HasNext(), "values iterator has less iterations than expected")
+	}
+	s.False(iterator.HasNext(), "values iterator has more iterations than expected")
+
+	// in this part we presume iterator HasNext method works correctly
+	iterator = packetValues.Iterator()
+	for index, value := range s.correctValues {
+		iterator.HasNext() // calling method to iterate
+		s.Equal(index, iterator.ValuePosition(), "iterator ValuePosition did not work as expected")
+		s.True(
+			utils.CompareFloatsPrecise(value, iterator.Value()),
+			"iterator Value did not work as expected",
+		)
+	}
+}

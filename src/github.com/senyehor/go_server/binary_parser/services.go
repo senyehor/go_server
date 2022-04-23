@@ -7,20 +7,28 @@ import (
 )
 
 func parseBinaryDataToStringParts(binaryData []byte) (*incomingDataStringParts, error) {
-	arrayOfParsedItems := strings.Split(string(binaryData[:]), string(packetConfig.DataDelimiter()))
-	if !checkPacketLength(arrayOfParsedItems) {
+	rawPacketParts := strings.Split(string(binaryData[:]), string(packetConfig.DataDelimiter()))
+	if !checkPacketLength(rawPacketParts) {
 		return nil, errors.New("invalid packet length")
 	}
-
-	parts := newIncomingDataStringPartsFromArray(arrayOfParsedItems)
-	if !checkPacketToken(parts.Token()) {
-		return nil, errors.New("invalid packet token")
-	}
-	return parts, nil
+	trimTerminator(rawPacketParts)
+	return newIncomingDataPartsFromArray(rawPacketParts), nil
 }
 
 func checkPacketLength(packetParts []string) bool {
 	return len(packetParts) == packetConfig.OtherValuesCount()+packetConfig.ValuesCount()
+}
+
+func trimTerminator(packetParts []string) {
+	lastElementPosition := len(packetParts) - 1
+	packetParts[lastElementPosition] = strings.TrimRight(
+		packetParts[lastElementPosition],
+		string(packetConfig.DataTerminator()),
+	)
+	// catching index out of range err
+	if err := recover(); err != nil {
+		return
+	}
 }
 
 func checkPacketToken(token string) bool {
@@ -28,13 +36,13 @@ func checkPacketToken(token string) bool {
 }
 
 func parsePacketValues(incomingValuesToParse []string) ([]float64, error) {
-	values := make([]float64, packetConfig.ValuesCount(), packetConfig.ValuesCount())
-	for partsIndexCounter, _ := range values {
-		parsedValue, err := strconv.ParseFloat(incomingValuesToParse[partsIndexCounter], 64)
+	values := make([]float64, len(incomingValuesToParse))
+	for index, _ := range values {
+		parsedValue, err := strconv.ParseFloat(incomingValuesToParse[index], 64)
 		if err != nil {
 			return nil, errors.New("failed to parse a packet value")
 		}
-		values = append(values, parsedValue)
+		values[index] = parsedValue
 	}
 	return values, nil
 }
@@ -61,21 +69,4 @@ func parsePacketDeviceID(packetDeviceIDToParse string) (int, error) {
 		return 0, errors.New("failed to parse packet device id")
 	}
 	return int(packetNumber), nil
-}
-
-// getPacketPartsIndexesInParsedData
-// [Token];[n1];[n2];...;[packetConfig.ValuesCount()];[TimeInterval];[PacketNumber];[IDdevice]!
-//- Packet structure
-func getPacketPartsIndexesInParsedData() *packetPartsIndexesInParsedData {
-	return &packetPartsIndexesInParsedData{
-		token: 0,
-		// left border included, right excluded
-		valuesLeftBorder:  1,
-		valuesRightBorder: 1 + packetConfig.ValuesCount(),
-		// indexes below are dependent on ValuesCount
-		//and each shifts to one more from values right border
-		time:         1 + packetConfig.ValuesCount(),
-		packetNumber: 2 + packetConfig.ValuesCount(),
-		deviceID:     3 + packetConfig.ValuesCount(),
-	}
 }

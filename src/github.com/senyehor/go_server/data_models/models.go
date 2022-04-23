@@ -15,16 +15,16 @@ type Packet struct {
 func NewPacket(values []float64, timeInterval int, packetNum int, deviceID int) (*Packet, error) {
 	packetValues, err := newPacketValues(values)
 	if err != nil {
-		return nil, errors.New("incorrect Packet values")
+		return nil, errors.New("incorrect packet values")
 	}
 	if timeInterval < 0 {
-		return nil, errors.New("Packet time interval below zero")
+		return nil, errors.New("packet time interval below zero")
 	}
 	if packetNum < 0 {
-		return nil, errors.New("Packet number below zero")
+		return nil, errors.New("packet number below zero")
 	}
-	if timeInterval < 0 {
-		return nil, errors.New("Packet device id below zero")
+	if deviceID < 0 {
+		return nil, errors.New("packet device id below zero")
 	}
 	return &Packet{values: packetValues, timeInterval: timeInterval, packetNum: packetNum, deviceID: deviceID}, nil
 }
@@ -54,37 +54,48 @@ func newPacketValues(values []float64) (*PacketValues, error) {
 	copy(valuesCopy, values)
 	return &PacketValues{values: valuesCopy}, nil
 }
+
+//Iterator returns an iterator that should be iterated by
+//
+//for iterator.HasNext() {here you access results of iteration via iterator.Something()}
 func (pvs *PacketValues) Iterator() *PacketValuesIterator {
 	return newPacketValuesIterator(pvs)
 }
 
 type PacketValuesIterator struct {
-	packetValues         *PacketValues
-	valuesCount          int
-	currentValue         float64
-	currentValuePosition int
+	packetValues     *PacketValues
+	valuesCount      int
+	currentValue     float64
+	iterationCounter int
 }
 
 func newPacketValuesIterator(packetValues *PacketValues) *PacketValuesIterator {
 	return &PacketValuesIterator{packetValues: packetValues, valuesCount: len(packetValues.values)}
 }
 func (pvi *PacketValuesIterator) HasNext() bool {
-	if pvi.currentValuePosition == pvi.valuesCount {
+	if pvi.iterationCounter == pvi.valuesCount {
 		return false
 	}
-	if pvi.currentValuePosition == 0 {
-		pvi.currentValue = pvi.packetValues.values[pvi.currentValuePosition]
-		return true
-	}
-	pvi.currentValuePosition++
+	pvi.currentValue = pvi.packetValues.values[pvi.iterationCounter]
+	pvi.iterationCounter++
 	return true
 }
 func (pvi *PacketValuesIterator) Value() float64 {
+	pvi.checkIterationStarted()
 	return pvi.currentValue
 }
+func (pvi *PacketValuesIterator) checkIterationStarted() {
+	if pvi.iterationCounter == 0 {
+		panic("HasNext was not called")
+	}
+}
+
+// ValuePosition return value position from 0
 func (pvi *PacketValuesIterator) ValuePosition() int {
-	return pvi.currentValuePosition
+	pvi.checkIterationStarted()
+	return pvi.iterationCounter - 1
 }
 func (pvi *PacketValuesIterator) IsLast() bool {
-	return pvi.currentValuePosition == pvi.valuesCount-1
+	pvi.checkIterationStarted()
+	return pvi.iterationCounter == pvi.valuesCount-1
 }

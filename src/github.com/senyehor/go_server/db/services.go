@@ -3,23 +3,15 @@ package db
 import (
 	"context"
 	"fmt"
+	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/senyehor/go_server/utils"
 	log "github.com/sirupsen/logrus"
+	"os"
 )
 
 var database = getConnection()
 
-func SavePacket(packet ipacket) error {
-	queryStringToInsertPacket := composeQueryStringToInsertPacket(packet)
-	_, err := database.Exec(context.Background(), queryStringToInsertPacket)
-	if err != nil {
-		log.Debug("failed to save packet")
-		return err
-	}
-	log.Debug("packet was inserted into db")
-	return nil
-}
-
-func composeQueryStringToInsertPacket(packetToInsert ipacket) string {
+func composeQueryStringToInsertPacket(packetToInsert packet) string {
 	insertPart := "insert into sensor_values" +
 		" (sensor_value, value_accumulation_period, package_number, boxes_set_id)"
 	valuesPart := " values "
@@ -38,4 +30,32 @@ func composeQueryStringToInsertPacket(packetToInsert ipacket) string {
 		}
 	}
 	return insertPart + valuesPart
+}
+
+func executeQuery(query string) (queryResult, error) {
+	return database.Exec(context.Background(), query)
+}
+
+func getConnection() *pgxpool.Pool {
+	config, err := pgxpool.ParseConfig(getConnString())
+	if err != nil {
+		log.Error(err)
+		log.Error("Could not parse config")
+		os.Exit(1)
+	}
+	pool, err := pgxpool.ConnectConfig(context.Background(), config)
+	if err != nil {
+		log.Error(err)
+		os.Exit(1)
+	}
+	return pool
+}
+
+func getConnString() string {
+	return "postgres://" +
+		utils.DBConfig.Username() + ":" +
+		utils.DBConfig.Password() + "@" +
+		utils.DBConfig.Host() + ":" +
+		utils.DBConfig.Port() +
+		"/" + utils.DBConfig.Name()
 }

@@ -12,11 +12,14 @@ func ParseFromBinary(binaryData []byte) (*data_models.Packet, error) {
 		return nil, errors.New("failed to split packet data to parts")
 	}
 
+	if !checkPacketToken(packetParts.Token()) {
+		return nil, errors.New("invalid packet token")
+	}
 	values, err := parsePacketValues(packetParts.Values())
 	if err != nil {
 		return nil, errors.New("failed to parse value from sensor")
 	}
-	time, err := parsePacketTimeInterval(packetParts.Time())
+	time, err := parsePacketTimeInterval(packetParts.TimeInterval())
 	if err != nil {
 		return nil, errors.New("failed to parse timeInterval")
 	}

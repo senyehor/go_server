@@ -2,18 +2,17 @@ package binary_parser
 
 import (
 	"github.com/senyehor/go_server/utils"
-	"strings"
 )
 
 var (
 	packetConfig            = utils.PacketConfig
-	parsedDataPacketIndexes = getPacketPartsIndexesInParsedData()
+	parsedDataPacketIndexes = newParsedDataPacketIndexes()
 )
 
 type incomingDataStringParts struct {
 	token  string
 	values []string
-	time,
+	timeInterval,
 	packetNumber,
 	deviceID string
 }
@@ -22,62 +21,41 @@ type packetPartsIndexesInParsedData struct {
 	token,
 	valuesLeftBorder,
 	valuesRightBorder,
-	time,
+	timeInterval,
 	packetNumber,
 	deviceID int
 }
 
 func newIncomingDataStringParts(
 	token string, values []string, time string, packetNumber string, deviceID string) *incomingDataStringParts {
-	return &incomingDataStringParts{token: token, values: values, time: time, packetNumber: packetNumber,
+	valuesCopy := make([]string, len(values))
+	copy(valuesCopy, values)
+	return &incomingDataStringParts{token: token, values: valuesCopy, timeInterval: time, packetNumber: packetNumber,
 		deviceID: deviceID}
 }
-func newIncomingDataStringPartsFromArray(parts []string) *incomingDataStringParts {
+
+func newIncomingDataPartsFromArray(parts []string) *incomingDataStringParts {
 	valuesCopy := make([]string, packetConfig.ValuesCount())
 	copy(
 		valuesCopy,
-		parts[parsedDataPacketIndexes.valuesLeftBorder:parsedDataPacketIndexes.valuesLeftBorder],
-	)
-	trimmedFromTerminatorDeviceID := strings.TrimRight(
-		parts[parsedDataPacketIndexes.deviceID],
-		string(packetConfig.DataTerminator()),
+		parts[parsedDataPacketIndexes.valuesLeftBorder:parsedDataPacketIndexes.valuesRightBorder],
 	)
 	return newIncomingDataStringParts(
 		parts[parsedDataPacketIndexes.token],
 		valuesCopy,
-		parts[parsedDataPacketIndexes.time],
+		parts[parsedDataPacketIndexes.timeInterval],
 		parts[parsedDataPacketIndexes.packetNumber],
-		trimmedFromTerminatorDeviceID,
+		parts[parsedDataPacketIndexes.deviceID],
 	)
 }
 
-func (i *incomingDataStringParts) IsEqual(other *incomingDataStringParts) bool {
-	if i.Token() != other.Token() {
-		return false
-	}
-	if len(i.Values()) != len(other.Values()) {
-		return false
-	}
-	for index, value := range i.values {
-		if value != other.values[index] {
-			return false
-		}
-	}
-	if i.Time() != other.Time() {
-		return false
-	}
-	if i.PacketNumber() != other.PacketNumber() {
-		return false
-	}
-	return i.DeviceID() == other.DeviceID()
-}
 func (i *incomingDataStringParts) Copy() *incomingDataStringParts {
 	valuesCopy := make([]string, packetConfig.ValuesCount())
 	copy(valuesCopy, i.Values())
 	return &incomingDataStringParts{
 		values:       valuesCopy,
 		token:        i.Token(),
-		time:         i.Time(),
+		timeInterval: i.TimeInterval(),
 		packetNumber: i.PacketNumber(),
 		deviceID:     i.DeviceID(),
 	}
@@ -88,12 +66,47 @@ func (i *incomingDataStringParts) Values() []string {
 func (i *incomingDataStringParts) Token() string {
 	return i.token
 }
-func (i *incomingDataStringParts) Time() string {
-	return i.time
+func (i *incomingDataStringParts) TimeInterval() string {
+	return i.timeInterval
 }
 func (i *incomingDataStringParts) PacketNumber() string {
 	return i.packetNumber
 }
 func (i *incomingDataStringParts) DeviceID() string {
 	return i.deviceID
+}
+func (i *incomingDataStringParts) Equal(other *incomingDataStringParts) bool {
+	if i.TimeInterval() != other.TimeInterval() {
+		return false
+	}
+	if i.PacketNumber() != other.PacketNumber() {
+		return false
+	}
+	if i.DeviceID() != other.DeviceID() {
+		return false
+	}
+	if len(i.Values()) != len(other.Values()) {
+		return false
+	}
+	for index, value := range i.Values() {
+		if other.Values()[index] != value {
+			return false
+		}
+	}
+	return true
+}
+
+// [Token];[n1];[n2];...;[packetConfig.ValuesCount()];[TimeInterval];[PacketNumber];[IDdevice]! - packet structure
+func newParsedDataPacketIndexes() *packetPartsIndexesInParsedData {
+	return &packetPartsIndexesInParsedData{
+		token: 0,
+		// left border included, right excluded
+		valuesLeftBorder:  1,
+		valuesRightBorder: 1 + packetConfig.ValuesCount(),
+		// indexes below are dependent on ValuesCount
+		//and each shifts to one more from values right border
+		timeInterval: 1 + packetConfig.ValuesCount(),
+		packetNumber: 2 + packetConfig.ValuesCount(),
+		deviceID:     3 + packetConfig.ValuesCount(),
+	}
 }

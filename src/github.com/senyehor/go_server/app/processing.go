@@ -11,12 +11,12 @@ import (
 func ProcessIncomingRawPacket(incomingConnection tcpserver.Connection) {
 	parsedPacket, err := tryParsePacketFromIncomingData(&incomingConnection)
 	if err != nil {
-		log.Debug("failed to parse ipacket")
+		log.Debug("failed to parse packet")
 		return
 	}
 	err = db.SavePacket(parsedPacket)
 	if err != nil {
-		log.Debug("failed to save ipacket")
+		log.Debug("failed to save packet")
 		return
 	}
 	confirmPacketProcessed(&incomingConnection)

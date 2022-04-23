@@ -5,7 +5,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"math"
+	"math/rand"
 	"strconv"
+	"time"
 )
 
 func getRuneFromEnv(key string) rune {
@@ -25,17 +27,6 @@ func getUintFromEnv(key string) uint {
 	return result
 }
 
-func ParsePositiveInt(toParse string) (int, error) {
-	result, err := strconv.ParseUint(toParse, 10, 32)
-	if err != nil {
-		return 0, err
-	}
-	if result < 0 {
-		return 0, errors.New("parsed value is below zero")
-	}
-	return int(result), nil
-}
-
 func ParseIntConvertToUint(toParse string) (uint, error) {
 	result, err := strconv.ParseUint(toParse, 10, 32)
 	if err != nil {
@@ -51,4 +42,17 @@ func CompareFloatsPrecise(a, b float64) bool {
 	a = math.Abs(a)
 	b = math.Abs(b)
 	return math.Abs(a-b) < 0.0_000_000_1
+}
+
+func RandPositiveInt() int {
+	time.Sleep(time.Nanosecond * 100)
+	rand.Seed(time.Now().UnixNano())
+	result := rand.Int31()
+	return int(result)
+}
+
+func RandFloat64() float64 {
+	time.Sleep(time.Nanosecond * 100)
+	rand.Seed(time.Now().UnixNano())
+	return (rand.Float64() - float64(0.5)) * (1_000_000.0)
 }

@@ -1,164 +1,213 @@
 package binary_parser
 
-//
-//import (
-//	"github.com/senyehor/go_server/utils"
-//	"github.com/spf13/cast"
-//	"github.com/stretchr/testify/suite"
-//	"strings"
-//	"testing"
-//)
-//
-//package app
-//
-//import (
-//"github.com/senyehor/go_server/utils"
-//"github.com/spf13/cast"
-//"github.com/stretchr/testify/suite"
-//"strings"
-//"testing"
-//"errors"
-//)
-//
-//func TestPacket(t *testing.T) {
-//	suite.Run(t, new(appModelsTestSuite))
-//}
-//
-////type appModelsTestSuite struct {
-////	suite.Suite
-////	correctIncomingDataParts *incomingDataStringParts
-////	expectedParsedValues     []float64
-////	correctDelimiter,
-////	correctTerminator rune
-////}
-//
-//type appModelsTestSuite struct {
-//	suite.Suite
-//	correctIncomingDataParts *incomingDataStringParts
-//	expectedParsedValues     []float64
-//	correctDelimiter,
-//	correctTerminator rune
-//}
-//
-//func (s *appModelsTestSuite) SetupTest() {
-//	s.expectedParsedValues = []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4.4, 5, 6.66666}
-//	s.correctIncomingDataParts = s.getCorrectIncomingDataParts()
-//	s.correctDelimiter = packetConfig.DataDelimiter()
-//	s.correctTerminator = packetConfig.DataTerminator()
-//}
-//
-//func (s *appModelsTestSuite) TestParsingIncomingDataWithCorrectValues() {
-//	correctBinaryData := s.composeIncomingBinaryData(
-//		s.correctIncomingDataParts,
-//		string(s.correctDelimiter),
-//		string(s.correctTerminator),
-//	)
-//	parts, err := s.testParsingBinaryDataToStringParts(correctBinaryData)
-//	s.NoError(err, "parsing binary data to string parts went wrong")
-//
-//	s.NoError(s.testParsePacketValues(parts), "parsing packet packetValues went wrong")
-//	s.NoError(s.testParsePacketTimeInterval(parts), "parsing packet time interval went wrong")
-//	s.NoError(s.testParsePacketNumber(parts), "parsing packet number went wrong")
-//	s.NoError(s.testParsePacketDeviceId(parts), "parsing packet device id went wrong")
-//}
-//
-//func (s *appModelsTestSuite) TestParsingToStringPartsWithWrongDelimiter() {
-//	binaryDataWithWrongDelimiter := s.composeIncomingBinaryData(
-//		s.correctIncomingDataParts,
-//		"wrong delimiter",
-//		string(s.correctTerminator),
-//	)
-//	_, err := s.testParsingBinaryDataToStringParts(binaryDataWithWrongDelimiter)
-//	s.Error(err, "parsing binary data to string parts with wrong delimiter did not return error")
-//}
-//
-//func (s *appModelsTestSuite) TestParsingToStringPartsWithWrongTerminator() {
-//	binaryDataWithWrongTerminator := s.composeIncomingBinaryData(
-//		s.correctIncomingDataParts,
-//		string(s.correctDelimiter),
-//		"wrong terminator",
-//	)
-//	_, err := s.testParsingBinaryDataToStringParts(binaryDataWithWrongTerminator)
-//	s.Error(err, "parsing binary data to string parts with wrong  did not return error")
-//}
-//
-//func (s *appModelsTestSuite) testParsingBinaryDataToStringParts(incomingData []byte) (*incomingDataStringParts, error) {
-//	parts, err := parseBinaryDataToStringParts(incomingData)
-//	if err != nil {
-//		return nil, errors.New("parsing incoming binary data into string parts returned err")
-//	}
-//	if !s.correctIncomingDataParts.IsEqual(parts) {
-//		return nil, errors.New("parsing binary data into string parts went wrong")
-//	}
-//	return parts, nil
-//}
-//
-//func (s *appModelsTestSuite) testParsePacketValues(packetParts *incomingDataStringParts) error {
-//	values, err := parsePacketValues(packetParts.Values())
-//	if err != nil {
-//		return err
-//	}
-//	for iterItem := range values.Iterate() {
-//		if !utils.CompareFloats(iterItem.Value(), s.expectedParsedValues[iterItem.ValuePosition()]) {
-//			return errors.New("parsed value does not match expected")
-//		}
-//	}
-//	return nil
-//}
-//
-//func (s *appModelsTestSuite) testParsePacketTimeInterval(packetParts *incomingDataStringParts) error {
-//	time, err := parsePacketTimeInterval(packetParts.Time())
-//	if err != nil {
-//		return errors.New("parsing packet timeInterval part returner err")
-//	}
-//	if cast.ToUint(packetParts.Time()) != time {
-//		return errors.New("packet time was not parsed correctly")
-//	}
-//	return nil
-//}
-//
-//func (s *appModelsTestSuite) testParsePacketNumber(packetParts *incomingDataStringParts) error {
-//	packetNumber, err := parsePacketNumber(packetParts.PacketNumber())
-//	if err != nil {
-//		return errors.New("parsing packet number part returner err")
-//	}
-//	if cast.ToUint(packetParts.PacketNumber()) != packetNumber {
-//		return errors.New("packet number was not parsed correctly")
-//	}
-//	return nil
-//}
-//
-//func (s *appModelsTestSuite) testParsePacketDeviceId(packetParts *incomingDataStringParts) error {
-//	deviceID, err := parsePacketDeviceID(packetParts.DeviceID())
-//	if err != nil {
-//		return errors.New("parsing deviceID was part returner err")
-//	}
-//	if cast.ToUint(packetParts.DeviceID()) != deviceID {
-//		return errors.New("packet deviceID was not parsed correctly")
-//	}
-//	return nil
-//}
-//
-//func (s *appModelsTestSuite) getCorrectIncomingDataParts() *incomingDataStringParts {
-//	values := []string{
-//		"1.0", "2.00", "3.000", "4", "5", "6", "7", "8", "9", "10",
-//		"1", "2", "3", "4.4", "5", "6.666666"}
-//	return newIncomingDataStringParts(
-//		packetConfig.Token(),
-//		values,
-//		"555555555",
-//		"13",
-//		"1",
-//	)
-//}
-//
-//func (s *appModelsTestSuite) composeIncomingBinaryData(
-//	dataParts *incomingDataStringParts, delimiter, terminator string) []byte {
-//
-//	packet := dataParts.Token() + delimiter +
-//		strings.Join(dataParts.Values(), delimiter) + delimiter +
-//		dataParts.Time() + delimiter +
-//		dataParts.PacketNumber() + delimiter +
-//		dataParts.DeviceID() + terminator
-//	return []byte(packet)
-//}
+import (
+	"fmt"
+	"github.com/senyehor/go_server/utils"
+	"github.com/stretchr/testify/suite"
+	"strconv"
+	"strings"
+	"testing"
+)
+
+func TestBinaryParser(t *testing.T) {
+	suite.Run(t, new(binaryParserTest))
+}
+
+type binaryParserTest struct {
+	suite.Suite
+	correctParts               *incomingDataStringParts
+	correctPartsExpectedValues *correctPartsExpectedValues
+}
+
+type correctPartsExpectedValues struct {
+	token  string
+	values []float64
+	timeInterval,
+	packetNumber,
+	deviceID int
+}
+
+func (s *binaryParserTest) SetupTest() {
+	var stringValues []string
+	var values []float64
+	for i := 0; i < packetConfig.ValuesCount(); i++ {
+		randFloat := utils.RandFloat64()
+		values = append(values, randFloat)
+		stringValues = append(stringValues, fmt.Sprintf("%v", randFloat))
+	}
+	timeInterval := utils.RandPositiveInt()
+	packetNumber := utils.RandPositiveInt()
+	deviceID := utils.RandPositiveInt()
+	s.correctPartsExpectedValues = &correctPartsExpectedValues{
+		token:        packetConfig.Token(),
+		values:       values,
+		timeInterval: timeInterval,
+		packetNumber: packetNumber,
+		deviceID:     deviceID,
+	}
+	s.correctParts = newIncomingDataStringParts(
+		packetConfig.Token(),
+		stringValues,
+		strconv.Itoa(timeInterval),
+		strconv.Itoa(packetNumber),
+		strconv.Itoa(deviceID),
+	)
+}
+
+func (s *binaryParserTest) TestParseFromBinary() {
+	result, err := ParseFromBinary(s.composeCorrectBinaryData())
+	s.NoError(err, "ParseFromBinary returned err with correct input")
+	correctValues := s.correctPartsExpectedValues
+	s.Equal(result.DeviceID(), correctValues.deviceID, "device id did not match expected")
+	s.Equal(result.TimeInterval(), correctValues.timeInterval, "time interval did not match expected")
+	s.Equal(result.PacketNum(), correctValues.packetNumber, "packet number did not match expected")
+	iterator := result.Values().Iterator()
+	valuesLength := 0
+	for iterator.HasNext() {
+		valuesLength++
+	}
+	s.Len(correctValues.values, valuesLength, "incorrect packet values length")
+	iterator = result.Values().Iterator()
+	for iterator.HasNext() {
+		s.True(utils.CompareFloatsPrecise(iterator.Value(),
+			correctValues.values[iterator.ValuePosition()]),
+			"packet value did not match expected",
+		)
+	}
+
+	randomData := newIncomingDataStringParts("random token",
+		[]string{"some value 1", "some value 2"},
+		"incorrect time",
+		"-124234",
+		"$#*&^",
+	)
+
+	incorrectInputs := [][]byte{
+		[]byte(""),
+		[]byte("possible random data"),
+		s.composeBinaryData(randomData, "random delimiter", "random terminator"),
+	}
+	for _, elem := range incorrectInputs {
+		result, err = ParseFromBinary(elem)
+		s.Error(err, "ParseFromBinary did not return err with incorrect input")
+		s.Nil(result, "ParseFromBinary did not return nil with incorrect input")
+	}
+}
+
+func (s *binaryParserTest) TestParseBinaryDataToStringParts() {
+	result, err := parseBinaryDataToStringParts(s.composeCorrectBinaryData())
+	s.NoError(err, "parseBinaryDataToStringParts returned err with correct input")
+	s.True(s.correctParts.Equal(result), "parseBinaryDataToStringParts return did not match expected")
+
+	wrongDelimiterData := s.composeBinaryData(
+		s.correctParts,
+		"incorrect delimiter",
+		string(packetConfig.DataTerminator()),
+	)
+	result, err = parseBinaryDataToStringParts(wrongDelimiterData)
+	s.Nil(result, "parseBinaryDataToStringParts did not return nil with incorrect input")
+	s.Error(err, "parseBinaryDataToStringParts did not return err with incorrect input")
+	// case with incorrect data terminator is not considered, as part, containing it will fail parsing
+}
+
+func (s *binaryParserTest) TestCheckPacketToken() {
+	s.True(checkPacketToken(s.correctParts.Token()), "checkPacketToken returned false for correct token")
+
+	partsWithIncorrectToken := s.correctParts.Copy()
+	partsWithIncorrectToken.token = "incorrect token"
+	s.False(checkPacketToken(
+		partsWithIncorrectToken.Token()),
+		"checkPacketToken returned true for wrong token",
+	)
+}
+
+func (s *binaryParserTest) TestParsePacketTimeInterval() {
+	result, err := parsePacketTimeInterval(s.correctParts.TimeInterval())
+	s.NoError(err, "parsePacketTimeInterval returned err with correct input")
+	s.Equal(
+		s.correctPartsExpectedValues.timeInterval,
+		result,
+		"parsePacketTimeInterval parsed time interval incorrectly",
+	)
+
+	incorrectTimeInterval := "incorrect time interval"
+	result, err = parsePacketTimeInterval(incorrectTimeInterval)
+	s.Error(err, "parsePacketTimeInterval did not return err with incorrect input")
+	s.Zerof(result, "parsePacketTimeInterval did not return default value on fail")
+}
+
+func (s *binaryParserTest) TestParsePacketNumber() {
+	result, err := parsePacketNumber(s.correctParts.PacketNumber())
+	s.NoError(err, "parsePacketNumber returned err with correct input")
+	s.Equal(
+		s.correctPartsExpectedValues.packetNumber,
+		result,
+		"parsePacketNumber parsed packet number incorrectly",
+	)
+
+	incorrectPacketNumber := "incorrect packet number"
+	result, err = parsePacketNumber(incorrectPacketNumber)
+	s.Error(err, "parsePacketNumber did not return err with incorrect input")
+	s.Zero(result, "parsePacketNumber did not return default value on fail")
+}
+
+func (s *binaryParserTest) TestParsePacketDeviceID() {
+	result, err := parsePacketDeviceID(s.correctParts.DeviceID())
+	s.NoError(err, "parsePacketDeviceID returned err with correct input")
+	s.Equal(
+		s.correctPartsExpectedValues.deviceID,
+		result,
+		"parsePacketDeviceID parsed device ID incorrectly",
+	)
+
+	incorrectPacketDeviceID := "incorrect device id"
+	result, err = parsePacketDeviceID(incorrectPacketDeviceID)
+	s.Error(err, "parsePacketDeviceID did not return err with incorrect input")
+	s.Zero(result, "parsePacketDeviceID did not return default value on fail")
+}
+
+func (s *binaryParserTest) TestCheckPacketLength() {
+	partsWithWrongLength := s.correctParts.Copy()
+	partsWithWrongLength.values = append(partsWithWrongLength.values, fmt.Sprintf("%v", utils.RandFloat64()))
+	wrongLengthData := s.composeBinaryData(
+		partsWithWrongLength,
+		string(packetConfig.DataDelimiter()),
+		string(packetConfig.DataTerminator()),
+	)
+	result, err := parseBinaryDataToStringParts(wrongLengthData)
+	s.Nil(result, "parseBinaryDataToStringParts did not return nil with incorrect length data")
+	s.Error(err, "parseBinaryDataToStringParts did not return err with incorrect length data")
+}
+
+func (s *binaryParserTest) TestParsePacketValues() {
+	result, err := parsePacketValues(s.correctParts.Values())
+	s.NoError(err, "parsePacketValues returned err with correct data")
+	s.Len(result, len(s.correctParts.Values()), "parsePacketValues returned wrong length result")
+	for index, expectedValue := range s.correctPartsExpectedValues.values {
+		s.Require().NoError(err, "parsing generated correct values went wrong")
+		s.True(
+			utils.CompareFloatsPrecise(result[index], expectedValue),
+			"parsePacketValues result value did not match expected")
+	}
+}
+
+func (s *binaryParserTest) composeCorrectBinaryData() []byte {
+	parts := s.correctParts
+	delimiter := string(packetConfig.DataDelimiter())
+	terminator := string(packetConfig.DataTerminator())
+	return []byte(
+		parts.Token() + delimiter +
+			strings.Join(parts.Values(), delimiter) + delimiter +
+			parts.TimeInterval() + delimiter +
+			parts.PacketNumber() + delimiter +
+			parts.DeviceID() + terminator)
+}
+
+func (s *binaryParserTest) composeBinaryData(parts *incomingDataStringParts, delimiter, terminator string) []byte {
+	return []byte(
+		parts.Token() + delimiter +
+			strings.Join(parts.Values(), delimiter) + delimiter +
+			parts.TimeInterval() + delimiter +
+			parts.PacketNumber() + delimiter +
+			parts.DeviceID() + terminator)
+}
