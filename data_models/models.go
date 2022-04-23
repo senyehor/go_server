@@ -97,5 +97,5 @@ func (pvi *PacketValuesIterator) ValuePosition() int {
 }
 func (pvi *PacketValuesIterator) IsLast() bool {
 	pvi.checkIterationStarted()
-	return pvi.iterationCounter == pvi.valuesCount-1
+	return pvi.iterationCounter == pvi.valuesCount
 }

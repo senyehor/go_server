@@ -9,11 +9,11 @@ import (
 )
 
 type App struct {
-	db dbConnection
+	connection dbConnection
 }
 
 func CreateApp() *App {
-	return &App{db: db.GetDB()}
+	return &App{connection: db.GetDB()}
 }
 
 func (a *App) BinaryDataHandler() func(conn tcpserver.Connection) {
@@ -35,12 +35,12 @@ func (a *App) BinaryDataHandler() func(conn tcpserver.Connection) {
 
 func (a *App) savePacket(packet *data_models.Packet) error {
 	queryStringToInsertPacket := composeQueryToInsertPacket(packet)
-	_, err := a.db.Execute(queryStringToInsertPacket)
+	err := a.connection.ExecuteWithNoReturn(queryStringToInsertPacket)
 	if err != nil {
 		log.Debug("failed to save packet")
 		return err
 	}
-	log.Debug("packet was inserted into db")
+	log.Debug("packet was inserted into database")
 	return nil
 }
 
@@ -49,5 +49,5 @@ func (a *App) confirmPacketProcessed(conn net.Conn) {
 	if err != nil {
 		log.Error("failed to send confirmation")
 	}
-	log.Info("Confirmed Packet was processed successfully")
+	log.Info("confirmed packet was successfully processed")
 }

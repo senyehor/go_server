@@ -11,7 +11,7 @@ import (
 )
 
 type dbConnection interface {
-	Execute(query string) (QueryResult, error)
+	ExecuteWithNoReturn(query string) error
 }
 
 type QueryResult interface {
@@ -24,12 +24,16 @@ type QueryResult interface {
 }
 
 func getBinaryDataFromConnection(incomingConnection net.Conn) ([]byte, error) {
-	data, err := bufio.NewReader(incomingConnection).ReadBytes(byte(utils.PacketConfig.DataTerminator()))
+	data, err := bufio.NewReader(incomingConnection).ReadBytes(getDataTerminator())
 	if err != nil {
 		return nil, err
 	}
-	log.Debug("I received some data from db")
+	log.Debug("I received some data from connection")
 	return data, nil
+}
+
+func getDataTerminator() byte {
+	return byte(utils.PacketConfig.DataTerminator())
 }
 
 func composeConfirmationMessage() []byte {

@@ -8,8 +8,6 @@ import (
 	"os"
 )
 
-var database = getConnection()
-
 func getConnection() *pgxpool.Pool {
 	config, err := pgxpool.ParseConfig(getConnString())
 	if err != nil {

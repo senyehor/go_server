@@ -39,8 +39,9 @@ func ParseIntConvertToUint(toParse string) (uint, error) {
 }
 
 func CompareFloatsPrecise(a, b float64) bool {
-	a = math.Abs(a)
-	b = math.Abs(b)
+	if b > a {
+		a, b = b, a
+	}
 	return math.Abs(a-b) < 0.0_000_000_1
 }
 

@@ -29,12 +29,12 @@ func (u *utilsTestSuite) TestParseIntConvertToUint() {
 	value := 12345
 	result, err := ParseIntConvertToUint(strconv.Itoa(value))
 	u.NoError(err, "ParseIntConvertToUint returned an error")
-	u.Equal(value, result, "ParseIntConvertToUint parsed incorrectly")
+	u.Equal(uint(value), result, "ParseIntConvertToUint parsed incorrectly")
 
 	value = -12345
 	result, err = ParseIntConvertToUint(strconv.Itoa(value))
 	u.Error(err, "ParseIntConvertToUint did not return an error")
-	u.Equal(0, result, "ParseIntConvertToUint did not return 0")
+	u.Equal(uint(0), result, "ParseIntConvertToUint did not return 0")
 }
 
 func (u *utilsTestSuite) TestCompareFloats() {

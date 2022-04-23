@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/senyehor/go_server/app"
 )
 
 type DB struct {
@@ -14,7 +13,8 @@ func GetDB() *DB {
 	return &DB{conn: getConnection()}
 }
 
-func (db *DB) Execute(query string) (app.QueryResult, error) {
+func (db *DB) ExecuteWithNoReturn(query string) error {
 	// todo possible timeout
-	return db.conn.Exec(context.Background(), query)
+	_, err := db.conn.Exec(context.Background(), query)
+	return err
 }

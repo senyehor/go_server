@@ -10,10 +10,10 @@ import (
 )
 
 func TestBinaryParser(t *testing.T) {
-	suite.Run(t, new(binaryParserTest))
+	suite.Run(t, new(binaryParserTestSuite))
 }
 
-type binaryParserTest struct {
+type binaryParserTestSuite struct {
 	suite.Suite
 	correctParts               *incomingDataStringParts
 	correctPartsExpectedValues *correctPartsExpectedValues
@@ -27,7 +27,7 @@ type correctPartsExpectedValues struct {
 	deviceID int
 }
 
-func (s *binaryParserTest) SetupTest() {
+func (s *binaryParserTestSuite) SetupTest() {
 	var stringValues []string
 	var values []float64
 	for i := 0; i < packetConfig.ValuesCount(); i++ {
@@ -54,7 +54,7 @@ func (s *binaryParserTest) SetupTest() {
 	)
 }
 
-func (s *binaryParserTest) TestParseFromBinary() {
+func (s *binaryParserTestSuite) TestParseFromBinary() {
 	result, err := ParseFromBinary(s.composeCorrectBinaryData())
 	s.NoError(err, "ParseFromBinary returned err with correct input")
 	correctValues := s.correctPartsExpectedValues
@@ -94,7 +94,7 @@ func (s *binaryParserTest) TestParseFromBinary() {
 	}
 }
 
-func (s *binaryParserTest) TestParseBinaryDataToStringParts() {
+func (s *binaryParserTestSuite) TestParseBinaryDataToStringParts() {
 	result, err := parseBinaryDataToStringParts(s.composeCorrectBinaryData())
 	s.NoError(err, "parseBinaryDataToStringParts returned err with correct input")
 	s.True(s.correctParts.Equal(result), "parseBinaryDataToStringParts return did not match expected")
@@ -110,7 +110,7 @@ func (s *binaryParserTest) TestParseBinaryDataToStringParts() {
 	// case with incorrect data terminator is not considered, as part, containing it will fail parsing
 }
 
-func (s *binaryParserTest) TestCheckPacketToken() {
+func (s *binaryParserTestSuite) TestCheckPacketToken() {
 	s.True(checkPacketToken(s.correctParts.Token()), "checkPacketToken returned false for correct token")
 
 	partsWithIncorrectToken := s.correctParts.Copy()
@@ -121,7 +121,7 @@ func (s *binaryParserTest) TestCheckPacketToken() {
 	)
 }
 
-func (s *binaryParserTest) TestParsePacketTimeInterval() {
+func (s *binaryParserTestSuite) TestParsePacketTimeInterval() {
 	result, err := parsePacketTimeInterval(s.correctParts.TimeInterval())
 	s.NoError(err, "parsePacketTimeInterval returned err with correct input")
 	s.Equal(
@@ -136,7 +136,7 @@ func (s *binaryParserTest) TestParsePacketTimeInterval() {
 	s.Zerof(result, "parsePacketTimeInterval did not return default value on fail")
 }
 
-func (s *binaryParserTest) TestParsePacketNumber() {
+func (s *binaryParserTestSuite) TestParsePacketNumber() {
 	result, err := parsePacketNumber(s.correctParts.PacketNumber())
 	s.NoError(err, "parsePacketNumber returned err with correct input")
 	s.Equal(
@@ -151,7 +151,7 @@ func (s *binaryParserTest) TestParsePacketNumber() {
 	s.Zero(result, "parsePacketNumber did not return default value on fail")
 }
 
-func (s *binaryParserTest) TestParsePacketDeviceID() {
+func (s *binaryParserTestSuite) TestParsePacketDeviceID() {
 	result, err := parsePacketDeviceID(s.correctParts.DeviceID())
 	s.NoError(err, "parsePacketDeviceID returned err with correct input")
 	s.Equal(
@@ -166,7 +166,7 @@ func (s *binaryParserTest) TestParsePacketDeviceID() {
 	s.Zero(result, "parsePacketDeviceID did not return default value on fail")
 }
 
-func (s *binaryParserTest) TestCheckPacketLength() {
+func (s *binaryParserTestSuite) TestCheckPacketLength() {
 	partsWithWrongLength := s.correctParts.Copy()
 	partsWithWrongLength.values = append(partsWithWrongLength.values, fmt.Sprintf("%v", utils.RandFloat64()))
 	wrongLengthData := s.composeBinaryData(
@@ -179,7 +179,7 @@ func (s *binaryParserTest) TestCheckPacketLength() {
 	s.Error(err, "parseBinaryDataToStringParts did not return err with incorrect length data")
 }
 
-func (s *binaryParserTest) TestParsePacketValues() {
+func (s *binaryParserTestSuite) TestParsePacketValues() {
 	result, err := parsePacketValues(s.correctParts.Values())
 	s.NoError(err, "parsePacketValues returned err with correct data")
 	s.Len(result, len(s.correctParts.Values()), "parsePacketValues returned wrong length result")
@@ -191,7 +191,7 @@ func (s *binaryParserTest) TestParsePacketValues() {
 	}
 }
 
-func (s *binaryParserTest) composeCorrectBinaryData() []byte {
+func (s *binaryParserTestSuite) composeCorrectBinaryData() []byte {
 	parts := s.correctParts
 	delimiter := string(packetConfig.DataDelimiter())
 	terminator := string(packetConfig.DataTerminator())
@@ -203,7 +203,7 @@ func (s *binaryParserTest) composeCorrectBinaryData() []byte {
 			parts.DeviceID() + terminator)
 }
 
-func (s *binaryParserTest) composeBinaryData(parts *incomingDataStringParts, delimiter, terminator string) []byte {
+func (s *binaryParserTestSuite) composeBinaryData(parts *incomingDataStringParts, delimiter, terminator string) []byte {
 	return []byte(
 		parts.Token() + delimiter +
 			strings.Join(parts.Values(), delimiter) + delimiter +
