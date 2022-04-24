@@ -50,7 +50,7 @@ func getDBConfig() *dbConfig {
 }
 
 func setUpEnv() {
-	path, found := os.LookupEnv("GO_APP_CONFIG_PATH")
+	path, found := os.LookupEnv("PACKET_LISTENER_CONFIG_PATH")
 	if !found {
 		panic(errors.New("config path environmental variable not found"))
 	}
@@ -74,5 +74,12 @@ func setUpEnv() {
 	if err != nil {
 		log.Error("Failed to find both prod and dev configs")
 		panic(err)
+	}
+
+	viper.SetConfigName("app_user_db_settings")
+	viper.SetConfigType("env")
+	err = viper.MergeInConfig()
+	if err != nil {
+		log.Error("failed to find app user db settings")
 	}
 }

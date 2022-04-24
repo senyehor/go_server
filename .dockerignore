@@ -8,4 +8,3 @@ Dockerfile
 *test*.go
 dev_config.yml
 readme
-go.mod

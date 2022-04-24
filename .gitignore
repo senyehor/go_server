@@ -4,13 +4,14 @@
 *.so
 *.dylib
 
-.env
-db_service_setting.env
+app_user_db_settings.env
+db_service_settings.env
 prod_config.yml
 dev_config.yml
 
 bin/
 
+go.mod
 go.sum
 
 # Test binary, built with `go test -c`

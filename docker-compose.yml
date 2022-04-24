@@ -4,14 +4,9 @@ services:
     image: postgres:11
     restart: unless-stopped
     env_file:
-      - db_service_setting.env
+      - db_service_settings.env
     volumes:
-      - "./dump.sql:/dump.sql"
-  #    healthcheck:
-  #      test: [ "CMD", "pg_isready", "-U", "$POSTGRES_USER" ]
-  #      timeout: 45s
-  #      interval: 10s
-  #      retries: 10
+      - app_pg_data:/var/lib/postgresql/data # directory where actual postgres data is stored
 
   boxex_listener:
     image: senyehor/server:latest
@@ -20,3 +15,11 @@ services:
     ports:
       - "8000:8000"
     restart: unless-stopped
+
+
+
+#    healthcheck: pg vibe
+  #      test: [ "CMD", "pg_isready", "-U", "$POSTGRES_USER" ]
+  #      timeout: 45s
+  #      interval: 10s
+  #      retries: 10

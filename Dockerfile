@@ -7,10 +7,15 @@ RUN go get -d -v ./...
 RUN GOOS=linux GOARCH=amd64 go build -o server ./
 
 FROM gcr.io/distroless/base-debian11:debug
-# todo think of cfg directory + env
-WORKDIR /go_server
-USER go_server
-COPY --from=builder /go_server/server .
-COPY --from=builder /go_server/prod_config.yml /bin/
-COPY --from=builder /go_server/packet_config.yml /bin/
-ENTRYPOINT ["/bin/server"]
+WORKDIR /packet_listener
+WORKDIR ./bin
+COPY --from=builder /go_server/server ./bin/
+
+WORKDIR /packet_listener/cfg
+COPY --from=builder /go_server/prod_config.yml ./cfg/
+COPY --from=builder /go_server/packet_config.yml ./cfg/
+COPY --from=builder /go_server/app_user_db_settings.env ./cfg/
+
+ENV GO_APP_CONFIG_PATH="/packet_listener/cfg/"
+
+ENTRYPOINT ["/packet_listener/bin/server"]
