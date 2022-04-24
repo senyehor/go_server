@@ -1,9 +1,11 @@
 bin/
-pkg/
 .dockerignore
 docker-compose.yml
 Dockerfile
 .gitignore
 .git/
 .idea/
-test*.go
+*test*.go
+dev_config.yml
+readme
+go.mod

@@ -5,11 +5,8 @@ services:
     restart: unless-stopped
     env_file:
       - db_service_setting.env
-    user: postgres
     volumes:
       - "./dump.sql:/dump.sql"
-#    entrypoint: [ "bin/bash", "-c", "pg_restore", "-C", "-d",
-#                  "sensors", "-U", "root", "<", "/dump.sql" ]
   #    healthcheck:
   #      test: [ "CMD", "pg_isready", "-U", "$POSTGRES_USER" ]
   #      timeout: 45s
