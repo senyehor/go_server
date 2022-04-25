@@ -54,9 +54,9 @@ func setUpEnv() {
 	if !found {
 		panic(errors.New("config path environmental variable not found"))
 	}
+	viper.SetConfigType("env")
 	viper.AddConfigPath(path)
 	viper.SetConfigName("packet_config")
-	viper.SetConfigType("yml")
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Error("Failed to find packet config")
@@ -77,7 +77,6 @@ func setUpEnv() {
 	}
 
 	viper.SetConfigName("app_user_db_settings")
-	viper.SetConfigType("env")
 	err = viper.MergeInConfig()
 	if err != nil {
 		log.Error("failed to find app user db settings")

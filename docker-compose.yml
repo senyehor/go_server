@@ -1,6 +1,7 @@
 version: "3.7"
 services:
   db:
+    container_name: db
     image: postgres:11
     restart: unless-stopped
     env_file:
@@ -8,8 +9,9 @@ services:
     volumes:
       - app_pg_data:/var/lib/postgresql/data # directory where actual postgres data is stored
 
-  boxex_listener:
-    image: senyehor/server:latest
+  box_listener:
+    container_name: box_listener
+    image: senyehor/packet_listener:latest
     depends_on:
       - db
     ports:
@@ -17,9 +19,5 @@ services:
     restart: unless-stopped
 
 
-
-#    healthcheck: pg vibe
-  #      test: [ "CMD", "pg_isready", "-U", "$POSTGRES_USER" ]
-  #      timeout: 45s
-  #      interval: 10s
-  #      retries: 10
+volumes:
+  app_pg_data:

@@ -6,5 +6,5 @@ Dockerfile
 .git/
 .idea/
 *test*.go
-dev_config.yml
+*.env
 readme
