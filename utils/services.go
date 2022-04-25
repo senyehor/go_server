@@ -3,15 +3,33 @@ package utils
 import (
 	"errors"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"math"
 	"math/rand"
+	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
+func getStringFromEnv(key string) string {
+	value, found := os.LookupEnv(key)
+	if !found {
+		panic("could not get " + key + " from env")
+	}
+	return strings.Trim(value, "\"")
+}
+
+func getBoolFromEnv(key string) bool {
+	value := getStringFromEnv(key)
+	result, err := strconv.ParseBool(value)
+	if err != nil {
+		panic("incorrect format of boolean variable " + key)
+	}
+	return result
+}
+
 func getRuneFromEnv(key string) rune {
-	value := viper.GetString(key)
+	value := getStringFromEnv(key)
 	if len(value) != 1 {
 		log.Errorf("getRuneFromEnv received %v", value)
 		panic(errors.New("rune value must be 1 symbol long"))
@@ -20,7 +38,7 @@ func getRuneFromEnv(key string) rune {
 }
 
 func getUintFromEnv(key string) uint {
-	result, err := ParseIntConvertToUint(viper.GetString(key))
+	result, err := ParseIntConvertToUint(getStringFromEnv(key))
 	if err != nil {
 		panic("failed to get Uint from env")
 	}

@@ -1,14 +1,6 @@
 package utils
 
-import (
-	"errors"
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
-	"os"
-)
-
 func init() {
-	setUpEnv()
 	PacketConfig = getPacketConfig()
 	AppConfig = getAppConfig()
 	DBConfig = getDBConfig()
@@ -22,63 +14,29 @@ var (
 
 func getAppConfig() *appConfig {
 	return &appConfig{
-		port:  viper.GetString("APP.PORT"),
-		debug: viper.GetBool("APP.DEBUG"),
+		port:  getStringFromEnv("APP_PORT"),
+		debug: getBoolFromEnv("APP_DEBUG"),
 	}
 }
 
 func getPacketConfig() *packetConfig {
 	return &packetConfig{
-		dataDelimiter:  getRuneFromEnv("PACKET.DELIMITER"),
-		dataTerminator: getRuneFromEnv("PACKET.TERMINATOR"),
-		response:       viper.GetString("PACKET.RESPONSE"),
-		token:          viper.GetString("PACKET.TOKEN"),
+		dataDelimiter:  getRuneFromEnv("PACKET_DELIMITER"),
+		dataTerminator: getRuneFromEnv("PACKET_TERMINATOR"),
+		response:       getStringFromEnv("PACKET_RESPONSE"),
+		token:          getStringFromEnv("PACKET_TOKEN"),
 		// getUintFromEnv serves as non-negative check
-		valuesCount:     int(getUintFromEnv("PACKET.VALUES_COUNT")),
-		otherPartsCount: int(getUintFromEnv("PACKET.NON_VALUES_PARTS_COUNT")),
+		valuesCount:     int(getUintFromEnv("PACKET_VALUES_COUNT")),
+		otherPartsCount: int(getUintFromEnv("PACKET_NON_VALUES_PARTS_COUNT")),
 	}
 }
 
 func getDBConfig() *dbConfig {
 	return &dbConfig{
-		DBUsername: viper.GetString("DB.USERNAME"),
-		DBPassword: viper.GetString("DB.PASSWORD"),
-		DBHost:     viper.GetString("DB.HOST"),
-		DBPort:     viper.GetString("DB.PORT"),
-		DBName:     viper.GetString("DB.NAME"),
-	}
-}
-
-func setUpEnv() {
-	path, found := os.LookupEnv("PACKET_LISTENER_CONFIG_PATH")
-	if !found {
-		panic(errors.New("config path environmental variable not found"))
-	}
-	viper.SetConfigType("env")
-	viper.AddConfigPath(path)
-	viper.SetConfigName("packet_config")
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Error("Failed to find packet config")
-		panic(err)
-	}
-
-	// checks what environment app is running in
-	viper.SetConfigName("dev_config")
-	err = viper.MergeInConfig()
-	if err == nil {
-		return
-	}
-	viper.SetConfigName("prod_config")
-	err = viper.MergeInConfig()
-	if err != nil {
-		log.Error("Failed to find both prod and dev configs")
-		panic(err)
-	}
-
-	viper.SetConfigName("app_user_db_settings")
-	err = viper.MergeInConfig()
-	if err != nil {
-		log.Error("failed to find app user db settings")
+		DBUsername: getStringFromEnv("DB_USERNAME"),
+		DBPassword: getStringFromEnv("DB_PASSWORD"),
+		DBHost:     getStringFromEnv("DB_HOST"),
+		DBPort:     getStringFromEnv("DB_PORT"),
+		DBName:     getStringFromEnv("DB_NAME"),
 	}
 }

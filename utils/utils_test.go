@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
+	"os"
 	"strconv"
 	"testing"
 )
@@ -15,13 +15,39 @@ type utilsTestSuite struct {
 	suite.Suite
 }
 
+func (u *utilsTestSuite) TestGetStringFromEnv() {
+	os.Clearenv()
+	key := "KEY"
+	value := "VALUE"
+	_ = os.Setenv(key, value)
+	u.Equal(value, getStringFromEnv(key), "getStringFromEnv returned wrong value")
+
+	u.Panics(
+		func() { getStringFromEnv("not_existing_key") },
+		"getStringFromEnv did not panic with key that is not in the env",
+	)
+}
+
+func (u *utilsTestSuite) TestGetBoolFromEnv() {
+	os.Clearenv()
+	key := "BOOLEAN_KEY"
+	boolValue := "true"
+	_ = os.Setenv(key, boolValue)
+	u.Equal(boolValue, getStringFromEnv(key), "getBoolFromEnv returned wrong value")
+
+	u.Panics(
+		func() { getStringFromEnv("wrong_format_bool_value") },
+		"getBoolFromEnv did not panic with key that is not in the env",
+	)
+}
+
 func (u *utilsTestSuite) TestGetRuneFromEnv() {
 	runeValue := '^'
 	key := "runeValue"
-	viper.Set(key, string(runeValue))
-	u.Equal(runeValue, getRuneFromEnv(key), "getRuneFromEnv failed")
+	_ = os.Setenv(key, string(runeValue))
 
-	viper.Set(key, "not rune value")
+	u.Equal(runeValue, getRuneFromEnv(key), "getRuneFromEnv failed")
+	_ = os.Setenv(key, "not rune value")
 	u.Panics(func() { getRuneFromEnv(key) }, "getRuneFromEnv does not panic when value is not rune")
 }
 
