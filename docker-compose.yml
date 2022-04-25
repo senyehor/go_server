@@ -17,6 +17,10 @@ services:
     ports:
       - "8000:8000"
     restart: unless-stopped
+    env_file:
+      - prod_config.env
+      - packet_config.env
+      - app_user_db_settings.env
 
 
 volumes:

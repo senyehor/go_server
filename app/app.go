@@ -37,7 +37,6 @@ func (a *App) savePacket(packet *data_models.Packet) error {
 	queryStringToInsertPacket := composeQueryToInsertPacket(packet)
 	err := a.connection.ExecuteWithNoReturn(queryStringToInsertPacket)
 	if err != nil {
-		log.Debug("failed to save packet")
 		return err
 	}
 	log.Debug("packet was inserted into database")
