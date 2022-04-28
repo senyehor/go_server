@@ -1,0 +1,13 @@
+version: "3.7"
+services:
+  box_listener:
+    image: tmp
+    expose:
+      - 9000
+
+  nginx:
+    container_name: nginx
+    image: my_nginx
+    ports:
+      - "8000:9000"
+    restart: unless-stopped

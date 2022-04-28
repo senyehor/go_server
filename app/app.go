@@ -29,6 +29,7 @@ func (a *App) BinaryDataHandler() func(conn tcpserver.Connection) {
 			return
 		}
 		a.confirmPacketProcessed(conn)
+		_ = conn.Close()
 	}
 	return handler
 }
@@ -48,5 +49,5 @@ func (a *App) confirmPacketProcessed(conn net.Conn) {
 	if err != nil {
 		log.Error("failed to send confirmation")
 	}
-	log.Info("confirmed packet was successfully processed")
+	log.Debug("confirmed packet was successfully processed")
 }

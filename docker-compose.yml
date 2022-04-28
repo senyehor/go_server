@@ -14,14 +14,25 @@ services:
     image: senyehor/packet_listener:latest
     depends_on:
       - db
-    ports:
-      - "8000:8000"
+      - nginx
+    expose:
+      - 8000
     restart: unless-stopped
     env_file:
       - prod_config.env
       - packet_config.env
       - app_user_db_settings.env
 
+  nginx:
+    container_name: nginx
+    build:
+      context: ./
+      dockerfile: nginx.dockerfile
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    command:
+      - run
 
 volumes:
   app_pg_data:

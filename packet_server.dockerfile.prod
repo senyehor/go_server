@@ -6,11 +6,9 @@ COPY . .
 RUN go get -d -v ./...
 RUN GOOS=linux GOARCH=amd64 go build -o server ./
 
-FROM gcr.io/distroless/base-debian11:debug
-
+FROM gcr.io/distroless/base-debian11
 WORKDIR /packet_listener
 WORKDIR ./bin
 COPY --from=builder /go_server/server ./
 
-ENTRYPOINT ["busybox", "sh"]
-
+CMD ["/packet_listener/bin/server"]

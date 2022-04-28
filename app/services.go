@@ -37,7 +37,9 @@ func getDataTerminator() byte {
 }
 
 func composeConfirmationMessage() []byte {
-	return []byte(utils.PacketConfig.Response())
+	message := []byte(utils.PacketConfig.Response())
+	message = append(message, []byte("\n")...)
+	return message
 }
 
 func tryParsePacketFromIncomingData(incomingConnection net.Conn) (*data_models.Packet, error) {
