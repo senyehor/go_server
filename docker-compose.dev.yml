@@ -1,25 +1,23 @@
-# run with -f docker-compose.dev.yml --env-file dev_config.env
 version: "3.7"
 services:
+  db:
+    container_name: db
+    image: postgres:11
+    volumes:
+      - "db_data:/var/lib/postgresql/data"
+    restart: unless-stopped
+
   box_listener:
     container_name: box_listener
-    image: senyehor/packet_listener:debug_latest
-    expose:
-      - "${APP_PORT}"
+    image: senyehor/box_listener:latest
+    depends_on:
+      - db
+    ports:
+      - "9000:9000"
     env_file:
       - dev_config.env
       - packet_config.env
     restart: unless-stopped
-
-  database:
-    container_name: db
-    image: postgres:11
-    expose:
-      - 5432
-    environment:
-      - POSTGRES_PASSWORD="${DB_PASSWORD}"
-    volumes:
-      - "db_data:/var/lib/postgresql/data"
 
   #  nginx:
   #    container_name: nginx

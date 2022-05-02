@@ -7,19 +7,18 @@ services:
     env_file:
       - db_service_settings.env
     volumes:
-      - app_pg_data:/var/lib/postgresql/data # directory where actual postgres data is stored
+      - app_pg_data:/var/lib/postgresql/data
 
   box_listener:
     container_name: box_listener
     image: senyehor/packet_listener:latest
     depends_on:
       - db
-    restart: unless-stopped
     env_file:
       - prod_config.env
       - packet_config.env
       - app_user_db_settings.env
-
+    restart: unless-stopped
 
 volumes:
   app_pg_data:
