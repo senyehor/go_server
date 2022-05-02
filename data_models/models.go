@@ -84,8 +84,10 @@ func (pvi *PacketValuesIterator) Value() float64 {
 	pvi.checkIterationStarted()
 	return pvi.currentValue
 }
+
 func (pvi *PacketValuesIterator) checkIterationStarted() {
 	if pvi.iterationCounter == 0 {
+		// todo think of better solution
 		panic("HasNext was not called")
 	}
 }

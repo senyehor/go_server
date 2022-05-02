@@ -14,7 +14,8 @@ import (
 func getStringFromEnv(key string) string {
 	value, found := os.LookupEnv(key)
 	if !found {
-		panic("could not get " + key + " from env")
+		log.Error("could not get " + key + " from env")
+		os.Exit(1)
 	}
 	return strings.Trim(value, "\"")
 }
@@ -22,8 +23,10 @@ func getStringFromEnv(key string) string {
 func getBoolFromEnv(key string) bool {
 	value := getStringFromEnv(key)
 	result, err := strconv.ParseBool(value)
+	// todo remake to graceful shutdown and write tests accordingly
 	if err != nil {
-		panic("incorrect format of boolean variable " + key)
+		log.Error("incorrect format of boolean variable " + key)
+		os.Exit(1)
 	}
 	return result
 }
@@ -31,8 +34,8 @@ func getBoolFromEnv(key string) bool {
 func getRuneFromEnv(key string) rune {
 	value := getStringFromEnv(key)
 	if len(value) != 1 {
-		log.Errorf("getRuneFromEnv received %v", value)
-		panic(errors.New("rune value must be 1 symbol long"))
+		log.Errorf("getRuneFromEnv received %v with length != 1", value)
+		os.Exit(1)
 	}
 	return rune(value[0])
 }
@@ -40,7 +43,7 @@ func getRuneFromEnv(key string) rune {
 func getUintFromEnv(key string) uint {
 	result, err := ParseIntConvertToUint(getStringFromEnv(key))
 	if err != nil {
-		panic("failed to get Uint from env")
+		log.Errorf("failed to get %v Uint from env", key)
 	}
 	return result
 }

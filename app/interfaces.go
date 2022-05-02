@@ -1,7 +1,9 @@
 package app
 
+import "context"
+
 type dbConnection interface {
-	ExecuteWithNoReturn(query string) error
+	ExecuteWithNoReturn(context context.Context, query string) error
 }
 
 type QueryResult interface {

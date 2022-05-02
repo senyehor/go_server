@@ -13,8 +13,7 @@ func GetDB() *DB {
 	return &DB{conn: getConnection()}
 }
 
-func (db *DB) ExecuteWithNoReturn(query string) error {
-	// todo possible timeout
-	_, err := db.conn.Exec(context.Background(), query)
+func (db *DB) ExecuteWithNoReturn(context context.Context, query string) error {
+	_, err := db.conn.Exec(context, query)
 	return err
 }

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"github.com/maurice2k/tcpserver"
 	"github.com/senyehor/go_server/data_models"
 	"github.com/senyehor/go_server/db"
@@ -36,7 +37,7 @@ func (a *App) BinaryDataHandler() func(conn tcpserver.Connection) {
 
 func (a *App) savePacket(packet *data_models.Packet) error {
 	queryStringToInsertPacket := composeQueryToInsertPacket(packet)
-	err := a.connection.ExecuteWithNoReturn(queryStringToInsertPacket)
+	err := a.connection.ExecuteWithNoReturn(context.Background(), queryStringToInsertPacket)
 	if err != nil {
 		return err
 	}
