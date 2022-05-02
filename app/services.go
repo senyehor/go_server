@@ -10,19 +10,6 @@ import (
 	"net"
 )
 
-type dbConnection interface {
-	ExecuteWithNoReturn(query string) error
-}
-
-type QueryResult interface {
-	RowsAffected() int64
-	String() string
-	Insert() bool
-	Update() bool
-	Delete() bool
-	Select() bool
-}
-
 func getBinaryDataFromConnection(incomingConnection net.Conn) ([]byte, error) {
 	data, err := bufio.NewReader(incomingConnection).ReadBytes(getDataTerminator())
 	if err != nil {
@@ -37,9 +24,7 @@ func getDataTerminator() byte {
 }
 
 func composeConfirmationMessage() []byte {
-	message := []byte(utils.PacketConfig.Response())
-	message = append(message, []byte("\n")...)
-	return message
+	return []byte(utils.PacketConfig.Response() + "\n")
 }
 
 func tryParsePacketFromIncomingData(incomingConnection net.Conn) (*data_models.Packet, error) {

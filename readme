@@ -2,3 +2,6 @@ Currently app processes only TCP binary data
 
 data_models:
     all Packet validation goes inside constructor
+
+docker-compose.dev.yml:
+    you will need to create database and init it from dump manually by

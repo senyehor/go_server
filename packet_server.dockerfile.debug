@@ -12,4 +12,4 @@ WORKDIR /packet_listener
 WORKDIR ./bin
 COPY --from=builder /go_server/server ./
 
-ENTRYPOINT ["busybox", "sh"]
+CMD ["/packet_listener/bin/server"]
