@@ -8,10 +8,8 @@
 .idea/
 bin/
 
-go.mod
-go.sum
+go.*
 
 *.test
 *.out
-go.work
 

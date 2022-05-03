@@ -5,6 +5,7 @@ import (
 	"github.com/maurice2k/tcpserver"
 	"github.com/senyehor/go_server/data_models"
 	"github.com/senyehor/go_server/db"
+	"github.com/senyehor/go_server/utils"
 	log "github.com/sirupsen/logrus"
 	"net"
 )
@@ -14,7 +15,7 @@ type App struct {
 }
 
 func CreateApp() *App {
-	return &App{connection: db.GetDB()}
+	return &App{connection: db.GetDB(utils.DBConfig)}
 }
 
 func (a *App) BinaryDataHandler() func(conn tcpserver.Connection) {

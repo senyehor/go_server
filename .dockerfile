@@ -3,8 +3,9 @@ FROM golang:1.17.7 as builder
 
 WORKDIR /go_server
 COPY . .
-RUN go get -d -v ./...
-RUN GOOS=linux GOARCH=amd64 go build -o server ./
+RUN "go mod tidy"
+RUN "go get -d -v ./..."
+RUN "GOOS=linux GOARCH=amd64 go build -o server ./"
 
 FROM gcr.io/distroless/base-debian11
 
