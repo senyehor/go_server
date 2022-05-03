@@ -5,9 +5,11 @@ services:
     image: postgres:11
     restart: unless-stopped
     env_file:
-      - db_service_settings.env
+      - envs.d/db_service_settings.env
     volumes:
       - app_pg_data:/var/lib/postgresql/data
+    expose:
+      - 5432
 
   box_listener:
     container_name: box_listener
@@ -15,10 +17,12 @@ services:
     depends_on:
       - db
     env_file:
-      - prod_config.env
-      - packet_config.env
-      - app_user_db_settings.env
+      - envs.d/prod_config.env
+      - envs.d/packet_config.env
+      - envs.d/app_user_db_settings.env
     restart: unless-stopped
+    ports:
+      - "8000:9000"
 
 volumes:
   app_pg_data:

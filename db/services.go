@@ -3,13 +3,12 @@ package db
 import (
 	"context"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/senyehor/go_server/utils"
 	log "github.com/sirupsen/logrus"
 	"os"
 )
 
-func getConnection() *pgxpool.Pool {
-	config, err := pgxpool.ParseConfig(getConnString())
+func getConnection(connString string) *pgxpool.Pool {
+	config, err := pgxpool.ParseConfig(connString)
 	if err != nil {
 		log.Error(err)
 		log.Error("Could not parse config")
@@ -23,11 +22,11 @@ func getConnection() *pgxpool.Pool {
 	return pool
 }
 
-func getConnString() string {
+func composeConnectionString(config DBConfig) string {
 	return "postgres://" +
-		utils.DBConfig.Username() + ":" +
-		utils.DBConfig.Password() + "@" +
-		utils.DBConfig.Host() + ":" +
-		utils.DBConfig.Port() +
-		"/" + utils.DBConfig.Name()
+		config.Username() + ":" +
+		config.Password() + "@" +
+		config.Host() + ":" +
+		config.Port() +
+		"/" + config.Name()
 }

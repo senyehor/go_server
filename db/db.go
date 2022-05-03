@@ -9,8 +9,8 @@ type DB struct {
 	conn *pgxpool.Pool
 }
 
-func GetDB() *DB {
-	return &DB{conn: getConnection()}
+func GetDB(config DBConfig) *DB {
+	return &DB{conn: getConnection(composeConnectionString(config))}
 }
 
 func (db *DB) ExecuteWithNoReturn(context context.Context, query string) error {

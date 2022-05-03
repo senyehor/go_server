@@ -4,11 +4,7 @@
 *.so
 *.dylib
 *.sql
-app_user_db_settings.env
-db_service_settings.env
-prod_config.env
-dev_config.env
-packet_config.env
+*.env
 .idea/
 bin/
 
