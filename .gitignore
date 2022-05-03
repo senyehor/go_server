@@ -8,8 +8,6 @@
 .idea/
 bin/
 
-go.*
-
 *.test
 *.out
-
+go.*
