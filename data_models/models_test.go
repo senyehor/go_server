@@ -45,7 +45,7 @@ func (s *appModelsTestSuite) TestCreatingPacket() {
 	result, err := NewPacket(s.correctValues, s.correctTimeInterval, s.correctPacketNumber, s.correctDeviceID)
 	s.NoError(err, "NewPacket returned err with correct incoming data")
 	valuesIterator := result.Values().Iterator()
-	for valuesIterator.Next() {
+	for valuesIterator.HasNext() {
 		s.True(
 			utils.CompareFloatsPrecise(valuesIterator.Value(), s.correctValues[valuesIterator.ValuePosition()]),
 			"packet values does not match expected",
@@ -101,14 +101,14 @@ func (s *appModelsTestSuite) TestValueIterator() {
 
 	iterator := packetValues.Iterator()
 	for range s.correctValues {
-		s.True(iterator.Next(), "values iterator has less iterations than expected")
+		s.True(iterator.HasNext(), "values iterator has less iterations than expected")
 	}
-	s.False(iterator.Next(), "values iterator has more iterations than expected")
+	s.False(iterator.HasNext(), "values iterator has more iterations than expected")
 
-	// in this part we presume iterator Next method works correctly
+	// in this part we presume iterator HasNext method works correctly
 	iterator = packetValues.Iterator()
 	for index, value := range s.correctValues {
-		iterator.Next() // calling method to iterate
+		iterator.HasNext() // calling method to iterate
 		s.Equal(index, iterator.ValuePosition(), "iterator ValuePosition did not work as expected")
 		s.True(
 			utils.CompareFloatsPrecise(value, iterator.Value()),

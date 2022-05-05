@@ -50,13 +50,14 @@ func newPacketValues(values []float64) (*PacketValues, error) {
 	if len(values) != valuesCount {
 		return nil, errors.New("passed PacketValues count did not match expected")
 	}
-	valuesCopy := values[:]
+	valuesCopy := make([]float64, valuesCount, valuesCount)
+	copy(valuesCopy, values)
 	return &PacketValues{values: valuesCopy}, nil
 }
 
 //Iterator returns an iterator that should be iterated by
 //
-//for iterator.Next() {here you access results of iteration via iterator.Something()}
+//for iterator.HasNext() {here you access results of iteration via iterator.Something()}
 func (pvs *PacketValues) Iterator() *PacketValuesIterator {
 	return newPacketValuesIterator(pvs)
 }
@@ -71,7 +72,7 @@ type PacketValuesIterator struct {
 func newPacketValuesIterator(packetValues *PacketValues) *PacketValuesIterator {
 	return &PacketValuesIterator{packetValues: packetValues, valuesCount: len(packetValues.values)}
 }
-func (pvi *PacketValuesIterator) Next() bool {
+func (pvi *PacketValuesIterator) HasNext() bool {
 	if pvi.iterationCounter == pvi.valuesCount {
 		return false
 	}
@@ -87,7 +88,7 @@ func (pvi *PacketValuesIterator) Value() float64 {
 func (pvi *PacketValuesIterator) checkIterationStarted() {
 	if pvi.iterationCounter == 0 {
 		// todo think of better solution
-		panic("Next was not called")
+		panic("HasNext was not called")
 	}
 }
 
