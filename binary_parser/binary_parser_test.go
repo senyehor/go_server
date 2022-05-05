@@ -63,12 +63,12 @@ func (s *binaryParserTestSuite) TestParseFromBinary() {
 	s.Equal(result.PacketNum(), correctValues.packetNumber, "packet number did not match expected")
 	iterator := result.Values().Iterator()
 	valuesLength := 0
-	for iterator.HasNext() {
+	for iterator.Next() {
 		valuesLength++
 	}
 	s.Len(correctValues.values, valuesLength, "incorrect packet values length")
 	iterator = result.Values().Iterator()
-	for iterator.HasNext() {
+	for iterator.Next() {
 		s.True(utils.CompareFloatsPrecise(iterator.Value(),
 			correctValues.values[iterator.ValuePosition()]),
 			"packet value did not match expected",

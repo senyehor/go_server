@@ -44,7 +44,7 @@ func composeQueryToInsertPacket(packet *data_models.Packet) string {
 		" (sensor_value, value_accumulation_period, package_number, boxes_set_id)"
 	valuesPart := " values "
 	iterator := packet.Values().Iterator()
-	for iterator.HasNext() {
+	for iterator.Next() {
 		valuesPart += fmt.Sprintf(
 			"(%v, %v, %v, "+
 				"(select boxes_set_id from boxes_sets bs join boxes b "+

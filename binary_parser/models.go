@@ -28,21 +28,15 @@ type packetPartsIndexesInParsedData struct {
 
 func newIncomingDataStringParts(
 	token string, values []string, time string, packetNumber string, deviceID string) *incomingDataStringParts {
-	valuesCopy := make([]string, len(values))
-	copy(valuesCopy, values)
+	valuesCopy := values[:]
 	return &incomingDataStringParts{token: token, values: valuesCopy, timeInterval: time, packetNumber: packetNumber,
 		deviceID: deviceID}
 }
 
 func newIncomingDataPartsFromArray(parts []string) *incomingDataStringParts {
-	valuesCopy := make([]string, packetConfig.ValuesCount())
-	copy(
-		valuesCopy,
-		parts[parsedDataPacketIndexes.valuesLeftBorder:parsedDataPacketIndexes.valuesRightBorder],
-	)
 	return newIncomingDataStringParts(
 		parts[parsedDataPacketIndexes.token],
-		valuesCopy,
+		parts[parsedDataPacketIndexes.valuesLeftBorder:parsedDataPacketIndexes.valuesRightBorder],
 		parts[parsedDataPacketIndexes.timeInterval],
 		parts[parsedDataPacketIndexes.packetNumber],
 		parts[parsedDataPacketIndexes.deviceID],
