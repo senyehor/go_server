@@ -64,25 +64,30 @@ func (pvs *PacketValues) Iterator() *PacketValuesIterator {
 
 type PacketValuesIterator struct {
 	packetValues     *PacketValues
-	valuesCount      int
-	currentValue     float64
+	length           int
+	currentItem      float64
 	iterationCounter int
 }
 
 func newPacketValuesIterator(packetValues *PacketValues) *PacketValuesIterator {
-	return &PacketValuesIterator{packetValues: packetValues, valuesCount: len(packetValues.values)}
+	return &PacketValuesIterator{
+		packetValues:     packetValues,
+		length:           len(packetValues.values),
+		currentItem:      0,
+		iterationCounter: 0,
+	}
 }
 func (pvi *PacketValuesIterator) HasNext() bool {
-	if pvi.iterationCounter == pvi.valuesCount {
+	if pvi.iterationCounter == pvi.length {
 		return false
 	}
-	pvi.currentValue = pvi.packetValues.values[pvi.iterationCounter]
+	pvi.currentItem = pvi.packetValues.values[pvi.iterationCounter]
 	pvi.iterationCounter++
 	return true
 }
 func (pvi *PacketValuesIterator) Value() float64 {
 	pvi.checkIterationStarted()
-	return pvi.currentValue
+	return pvi.currentItem
 }
 
 func (pvi *PacketValuesIterator) checkIterationStarted() {
@@ -99,5 +104,5 @@ func (pvi *PacketValuesIterator) ValuePosition() int {
 }
 func (pvi *PacketValuesIterator) IsLast() bool {
 	pvi.checkIterationStarted()
-	return pvi.iterationCounter == pvi.valuesCount
+	return pvi.iterationCounter == pvi.length
 }
