@@ -40,6 +40,7 @@ func (a *App) savePacket(packet *data_models.Packet) error {
 	queryStringToInsertPacket := composeQueryToInsertPacket(packet)
 	err := a.connection.ExecuteWithNoReturn(context.Background(), queryStringToInsertPacket)
 	if err != nil {
+		log.Debug(err)
 		return err
 	}
 	log.Debug("packet was inserted into database")
@@ -49,6 +50,7 @@ func (a *App) savePacket(packet *data_models.Packet) error {
 func (a *App) confirmPacketProcessed(conn net.Conn) {
 	_, err := conn.Write(composeConfirmationMessage())
 	if err != nil {
+		log.Debug(err)
 		log.Error("failed to send confirmation")
 	}
 	log.Debug("confirmed packet was successfully processed")
