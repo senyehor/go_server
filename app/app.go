@@ -22,12 +22,12 @@ func (a *App) BinaryDataHandler() func(conn tcpserver.Connection) {
 	handler := func(conn tcpserver.Connection) {
 		parsedPacket, err := tryParsePacketFromIncomingData(conn)
 		if err != nil {
-			log.Debug("failed to parse packet")
+			log.Errorf("failed to parse packet from %v", conn.GetServerAddr().IP)
 			return
 		}
 		err = a.savePacket(parsedPacket)
 		if err != nil {
-			log.Debug("failed to save packet")
+			log.Errorf("failed to save packet from %v", conn.GetServerAddr().IP)
 			return
 		}
 		a.confirmPacketProcessed(conn)
@@ -50,8 +50,8 @@ func (a *App) savePacket(packet *data_models.Packet) error {
 func (a *App) confirmPacketProcessed(conn net.Conn) {
 	_, err := conn.Write(composeConfirmationMessage())
 	if err != nil {
-		log.Debug(err)
+		log.Error(err)
 		log.Error("failed to send confirmation")
 	}
-	log.Debug("confirmed packet was successfully processed")
+	log.Debugf("confirmed packet was successfully processed from %v", conn.RemoteAddr().String())
 }
