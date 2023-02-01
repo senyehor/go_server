@@ -9,3 +9,4 @@ Dockerfile
 *.env
 readme
 *.sql
+env_template
