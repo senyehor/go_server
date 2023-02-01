@@ -48,7 +48,7 @@ func composeQueryToInsertPacket(packet *data_models.Packet) string {
 		valuesPart += fmt.Sprintf(
 			"(%v, %v, %v, "+
 				"(select boxes_set_id from boxes_sets bs join boxes b "+
-				"on bs.box_id=b.box_id and box_number='%v' and bs.sensor_number=%v))",
+				"on bs.box_id=b.box_id and box_identifier='%v' and bs.sensor_number=%v))",
 			iterator.Value(), packet.TimeInterval(), packet.PacketNum(),
 			packet.DeviceID(), iterator.ValuePosition()+1)
 		if iterator.IsLast() {
