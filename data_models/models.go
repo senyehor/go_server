@@ -50,9 +50,8 @@ func newPacketValues(values []float64) (*PacketValues, error) {
 	if len(values) != valuesCount {
 		return nil, errors.New("passed PacketValues count did not match expected")
 	}
-	valuesCopy := make([]float64, valuesCount, valuesCount)
-	copy(valuesCopy, values)
-	return &PacketValues{values: valuesCopy}, nil
+	valuesInKilowattHour := convertJouleValuesToKilowattHour(values)
+	return &PacketValues{values: valuesInKilowattHour}, nil
 }
 
 //Iterator returns an iterator that should be iterated by
