@@ -10,3 +10,4 @@ Dockerfile
 readme
 *.sql
 env_template
+.DS_Store

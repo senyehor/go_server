@@ -7,6 +7,6 @@
 *.env
 .idea/
 bin/
-
+.DS_Store
 *.test
 *.out
