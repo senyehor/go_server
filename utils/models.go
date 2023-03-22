@@ -22,6 +22,19 @@ type appConfig struct {
 	debug bool   `mapstructure:"DEBUG"`
 }
 
+type serverControllingConfig struct {
+	currentStatusKey string
+	channelName      string
+}
+
+func (s serverControllingConfig) CurrentStatusKey() string {
+	return s.currentStatusKey
+}
+
+func (s serverControllingConfig) ChannelName() string {
+	return s.channelName
+}
+
 func (packetConfig *packetConfig) DataDelimiter() rune {
 	return packetConfig.dataDelimiter
 }

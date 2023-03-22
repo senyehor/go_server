@@ -4,12 +4,14 @@ func init() {
 	PacketConfig = getPacketConfig()
 	AppConfig = getAppConfig()
 	DBConfig = getDBConfig()
+	ServerControllingConfig = getServerControllingConfig()
 }
 
 var (
-	PacketConfig *packetConfig
-	AppConfig    *appConfig
-	DBConfig     *dbConfig
+	PacketConfig            *packetConfig
+	AppConfig               *appConfig
+	DBConfig                *dbConfig
+	ServerControllingConfig *serverControllingConfig
 )
 
 func getAppConfig() *appConfig {
@@ -38,5 +40,12 @@ func getDBConfig() *dbConfig {
 		DBHost:     getStringFromEnv("DB_HOST"),
 		DBPort:     getStringFromEnv("DB_PORT"),
 		DBName:     getStringFromEnv("DB_NAME"),
+	}
+}
+
+func getServerControllingConfig() *serverControllingConfig {
+	return &serverControllingConfig{
+		currentStatusKey: getStringFromEnv("CURRENT_STATUS_KEY"),
+		channelName:      getStringFromEnv("CHANNEL_NAME"),
 	}
 }
