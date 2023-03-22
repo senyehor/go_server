@@ -23,8 +23,18 @@ type appConfig struct {
 }
 
 type serverControllingConfig struct {
-	currentStatusKey string
-	channelName      string
+	currentStatusKey       string
+	channelName            string
+	resumeListeningCommand string
+	stopListeningCommand   string
+}
+
+func (s serverControllingConfig) ResumeListeningCommand() string {
+	return s.resumeListeningCommand
+}
+
+func (s serverControllingConfig) StopListeningCommand() string {
+	return s.stopListeningCommand
 }
 
 func (s serverControllingConfig) CurrentStatusKey() string {

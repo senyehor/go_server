@@ -45,7 +45,9 @@ func getDBConfig() *dbConfig {
 
 func getServerControllingConfig() *serverControllingConfig {
 	return &serverControllingConfig{
-		currentStatusKey: getStringFromEnv("CURRENT_STATUS_KEY"),
-		channelName:      getStringFromEnv("CHANNEL_NAME"),
+		currentStatusKey:       getStringFromEnv("CURRENT_STATUS_KEY"),
+		channelName:            getStringFromEnv("CHANNEL_NAME"),
+		resumeListeningCommand: getStringFromEnv("RESUME_LISTENING_COMMAND"),
+		stopListeningCommand:   getStringFromEnv("STOP_LISTENING_COMMAND"),
 	}
 }
