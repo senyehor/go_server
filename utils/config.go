@@ -5,6 +5,7 @@ func init() {
 	AppConfig = getAppConfig()
 	DBConfig = getDBConfig()
 	ServerControllingConfig = getServerControllingConfig()
+	RedisConfig = getRedisConfig()
 }
 
 var (
@@ -12,6 +13,7 @@ var (
 	AppConfig               *appConfig
 	DBConfig                *dbConfig
 	ServerControllingConfig *serverControllingConfig
+	RedisConfig             *redisConfig
 )
 
 func getAppConfig() *appConfig {
@@ -49,5 +51,13 @@ func getServerControllingConfig() *serverControllingConfig {
 		channelName:            getStringFromEnv("CHANNEL_NAME"),
 		resumeListeningCommand: getStringFromEnv("RESUME_LISTENING_COMMAND"),
 		stopListeningCommand:   getStringFromEnv("STOP_LISTENING_COMMAND"),
+	}
+}
+
+func getRedisConfig() *redisConfig {
+	return &redisConfig{
+		Address:  getStringFromEnv("REDIS_ADDRESS"),
+		Password: getStringFromEnv("REDIS_PASSWORD"),
+		DB:       int(getUintFromEnv("REDIS_DB")),
 	}
 }

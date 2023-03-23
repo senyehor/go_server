@@ -29,6 +29,12 @@ type serverControllingConfig struct {
 	stopListeningCommand   string
 }
 
+type redisConfig struct {
+	Address  string
+	Password string
+	DB       int
+}
+
 func (s serverControllingConfig) ResumeListeningCommand() string {
 	return s.resumeListeningCommand
 }
