@@ -1,6 +1,6 @@
 module github.com/senyehor/go_server
 
-go 1.17
+go 1.18
 
 require (
 	github.com/jackc/pgx/v4 v4.17.2
