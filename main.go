@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/maurice2k/tcpserver"
+	"github.com/redis/go-redis/v9"
 	"github.com/senyehor/go_server/app"
+	"github.com/senyehor/go_server/server_controlling"
 	"github.com/senyehor/go_server/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -13,18 +14,25 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 	application := app.CreateApp()
-	server, err := tcpserver.NewServer(appConfig.ListenAddress())
-	if err != nil {
-		log.Error("Server failed to start")
-	}
-	server.SetRequestHandler(application.BinaryDataHandler())
-	err = server.Listen()
-	if err != nil {
-		log.Error("Server failed to start listening")
-	}
-	log.Info("Server successfully started")
-	err = server.Serve()
-	if err != nil {
-		log.Error("Server failed to serve")
+	server := server_controlling.CreateServer(application.BinaryDataHandler())
+	server.Run()
+	r := redis.NewClient(&redis.Options{
+		Addr:     utils.RedisConfig.Address,
+		Password: utils.RedisConfig.Password,
+		DB:       utils.RedisConfig.DB,
+	})
+	log.Error("redis created")
+	commandListener := server_controlling.NewCommandListener(r)
+	for {
+		command := commandListener.TryGetCommand()
+		if command == nil {
+			continue
+		}
+		if command.IsStopListening() {
+			server.Stop()
+		}
+		if command.IsResumeListening() {
+			server.Run()
+		}
 	}
 }
