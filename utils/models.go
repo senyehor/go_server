@@ -23,10 +23,10 @@ type appConfig struct {
 }
 
 type serverControllingConfig struct {
-	currentStatusKey       string
-	channelName            string
-	resumeListeningCommand string
-	stopListeningCommand   string
+	currentStatusKey      string
+	channelName           string
+	startListeningCommand string
+	stopListeningCommand  string
 }
 
 type redisConfig struct {
@@ -35,8 +35,8 @@ type redisConfig struct {
 	DB       int
 }
 
-func (s serverControllingConfig) ResumeListeningCommand() string {
-	return s.resumeListeningCommand
+func (s serverControllingConfig) StartListeningCommand() string {
+	return s.startListeningCommand
 }
 
 func (s serverControllingConfig) StopListeningCommand() string {
