@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
 FROM golang:1.17.7 as builder
 
+ENV TZ=Europe/Kiev
+
 WORKDIR /go_server
 COPY . .
 RUN go mod tidy
