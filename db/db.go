@@ -13,7 +13,7 @@ func GetDB(config DBConfig) *DB {
 	return &DB{conn: getConnection(composeConnectionString(config))}
 }
 
-func (db *DB) ExecuteWithNoReturn(context context.Context, query string) error {
-	_, err := db.conn.Exec(context, query)
+func (db *DB) ExecuteWithNoReturn(ctx context.Context, query string) error {
+	_, err := db.conn.Exec(ctx, query)
 	return err
 }
