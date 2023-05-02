@@ -8,6 +8,7 @@ import (
 	"github.com/senyehor/go_server/utils"
 	log "github.com/sirupsen/logrus"
 	"net"
+	"time"
 )
 
 type App struct {
@@ -27,11 +28,12 @@ func (a *App) BinaryDataHandler() func(conn tcpserver.Connection) {
 		}
 		err = a.savePacket(parsedPacket)
 		if err != nil {
+			log.Error(err)
 			log.Errorf("failed to save packet from %v", conn.GetServerAddr().IP)
 			return
 		}
 		a.confirmPacketProcessed(conn)
-		_ = conn.Close()
+		time.Sleep(2 * time.Second)
 	}
 	return handler
 }
@@ -40,10 +42,8 @@ func (a *App) savePacket(packet *data_models.Packet) error {
 	queryStringToInsertPacket := composeQueryToInsertPacket(packet)
 	err := a.connection.ExecuteWithNoReturn(context.Background(), queryStringToInsertPacket)
 	if err != nil {
-		log.Debug(err)
 		return err
 	}
-	log.Debug("packet was inserted into database")
 	return nil
 }
 
