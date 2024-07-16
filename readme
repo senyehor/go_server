@@ -1,7 +1,3 @@
-Currently app processes only TCP binary data
+This binary parser is a part of [energokodros](https://senyehor.github.io/energokodros_website) website. It processed incoming binary data and saves it to a db.
 
-data_models:
-    all Packet validation goes inside constructor
-
-docker-compose.*.yml:
-    you will need to create database and init it from dump manually
+![app flow state diagram](.readme_images/flow_state.jpg)
